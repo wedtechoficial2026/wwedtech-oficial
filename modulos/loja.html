@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#173f73" />
+    <meta name="description" content="Loja online do bairro — compre pelo site e retire na loja ou receba em casa." />
+    <title>Loja online — compre e retire na loja</title>
+    <link rel="icon" href="../frontend/img/modulos/favicon-wedtech.png" type="image/png" />
+    <link rel="stylesheet" href="../frontend/css/modulos/loja.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      window.WEDTECH_STATE_ENDPOINT = "../api/state.php";
+    </script>
+    <script src="../frontend/js/shared/server-state.js"></script>
+    <script src="../frontend/js/modulos/config.js"></script>
+    <script src="../frontend/js/modulos/vendor/qrcode.js"></script>
+    <script src="../frontend/js/modulos/core/catalogos.js"></script>
+    <script src="../frontend/js/modulos/core/calendario.js"></script>
+    <script src="../frontend/js/modulos/core/wedtech-core.js"></script>
+    <script src="../frontend/js/modulos/loja/loja.js"></script>
+  </body>
+</html>

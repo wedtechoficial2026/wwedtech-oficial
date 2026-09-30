@@ -1,0 +1,93 @@
+/* Proposta comercial (proposta.php): documento claro, legível no celular e pronto para imprimir */
+:root {
+  --ink: #14181f;
+  --muted: #5d6673;
+  --line: #e2e6ec;
+  --soft: #f5f7fa;
+  --brand: #1d6fe0;
+  --ok: #17864a;
+  --warn: #a86500;
+  --danger: #b3261e;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #eef1f5; color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.sheet { max-width: 820px; margin: 32px auto; padding: 40px 44px; background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(20, 24, 31, 0.08); }
+.sheet.narrow { max-width: 520px; text-align: center; }
+h1 { margin: 0 0 8px; font-size: 24px; }
+h2 { margin: 0 0 10px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 20px; border-bottom: 2px solid var(--ink); }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 24px; }
+.brand b { color: var(--brand); }
+.doc-meta { display: grid; justify-items: end; gap: 2px; text-align: right; }
+.doc-meta strong { font-size: 18px; }
+.doc-meta span { color: var(--muted); font-size: 13px; }
+.status { margin-top: 4px; padding: 2px 10px; border-radius: 99px; font-size: 12px !important; font-weight: 700; background: var(--soft); color: var(--muted) !important; }
+.status-enviada { background: #e7f0fd; color: var(--brand) !important; }
+.status-aceita { background: #e3f4ea; color: var(--ok) !important; }
+.status-recusada, .status-vencida { background: #fbe9e7; color: var(--danger) !important; }
+.status-aprovacao { background: #fdf1dc; color: var(--warn) !important; }
+.notice { margin: 20px 0 0; padding: 12px 16px; border-radius: 10px; background: #fdf1dc; color: #6b4300; }
+.notice.ok { background: #e3f4ea; color: #0f5a31; }
+.notice.error { background: #fbe9e7; color: #7c1a14; }
+.parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+.parties div { display: grid; gap: 1px; padding: 14px 16px; border-radius: 10px; background: var(--soft); }
+.parties small { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.parties b { font-size: 16px; }
+.parties span { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.block { margin: 26px 0; }
+.included { margin: 0; padding-left: 20px; }
+.included li { margin: 4px 0; }
+.lines { width: 100%; border-collapse: collapse; }
+.lines td { padding: 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.lines td:last-child { width: 150px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lines .discount td { color: var(--ok); }
+.lines .total td { border-bottom: 0; border-top: 2px solid var(--ink); font-weight: 800; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0; }
+.summary div { display: grid; gap: 2px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; }
+.summary small { color: var(--muted); font-size: 12px; }
+.summary strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+.summary em { color: var(--muted); font-size: 12px; font-style: normal; }
+.conditions p { margin: 0; color: var(--muted); font-size: 13px; }
+.answer { margin-top: 28px; padding: 20px; border-radius: 12px; background: var(--soft); }
+.answer.done { font-size: 16px; }
+.accept { display: grid; gap: 8px; max-width: 460px; }
+.accept input:not([type="checkbox"]), .refuse textarea { width: 100%; padding: 11px 12px; border: 1px solid #c9d0da; border-radius: 9px; font: inherit; }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.refuse { margin-top: 18px; }
+.refuse summary { color: var(--muted); cursor: pointer; }
+.refuse form { display: grid; gap: 8px; max-width: 460px; margin-top: 10px; }
+.btn { justify-self: start; padding: 11px 18px; border: 1px solid #c9d0da; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+.btn.primary { border-color: var(--brand); background: var(--brand); color: #fff; }
+.btn:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid rgba(29, 111, 224, 0.35); outline-offset: 2px; }
+.toolbar { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+a.btn { text-decoration: none; }
+.check a { color: var(--brand); font-weight: 600; }
+
+/* Contrato (contrato.php) */
+.contract-doc h1 { margin: 26px 0 6px; font-size: 21px; text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
+.contract-doc .lead { margin: 0 0 22px; color: var(--muted); text-align: center; font-size: 13px; }
+.contract-doc .parties p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.clause { margin: 18px 0; break-inside: avoid; }
+.clause h2 { margin-bottom: 6px; color: var(--ink); font-size: 14.5px; text-transform: none; letter-spacing: 0; }
+.clause p, .clause li { margin: 4px 0; text-align: justify; }
+.clause ol, .clause ul { margin: 4px 0; padding-left: 22px; }
+.blank { display: inline-block; min-width: 160px; border-bottom: 1px solid var(--ink); }
+.signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 44px; break-inside: avoid; }
+.signatures div { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--ink); text-align: center; font-size: 13px; }
+.signatures small { color: var(--muted); }
+.e-accept { margin-top: 26px; padding: 14px 16px; border: 1px solid #b7e2c7; border-radius: 10px; background: #effaf3; font-size: 13.5px; break-inside: avoid; }
+.e-accept code { font-weight: 700; letter-spacing: 0.05em; }
+@media (max-width: 640px) { .signatures { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .sheet { margin: 0; padding: 24px 16px; border-radius: 0; box-shadow: none; }
+  .doc-head { flex-direction: column; }
+  .doc-meta { justify-items: start; text-align: left; }
+  .parties, .summary { grid-template-columns: 1fr; }
+  .lines td:last-child { width: auto; padding-left: 12px; }
+}
+@media print {
+  body { background: #fff; font-size: 12.5px; }
+  .sheet { margin: 0; padding: 0; max-width: none; box-shadow: none; }
+  .no-print, .notice { display: none !important; }
+  .summary div, .parties div { break-inside: avoid; }
+}

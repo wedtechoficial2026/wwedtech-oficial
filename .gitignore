@@ -1,0 +1,16 @@
+# Banco de dados local (criado sozinho na primeira execução; tem dados e senhas de quem usa)
+database.sqlite
+database.sqlite-*
+*.sqlite-journal
+
+# Arquivos compactados e cópias de segurança
+*.rar
+*.zip
+*.bak
+
+# Sistema e editores
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

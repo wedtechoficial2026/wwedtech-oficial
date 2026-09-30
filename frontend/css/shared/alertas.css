@@ -1,0 +1,13 @@
+/* Avisos em tempo real (frontend/js/shared/alertas.js): cartões flutuantes no canto inferior direito */
+.wt-alerts { position: fixed; right: 16px; bottom: 16px; z-index: 9999; display: grid; gap: 10px; width: min(360px, calc(100vw - 32px)); }
+.wt-alert { display: flex; align-items: stretch; border: 1px solid var(--line, #dfe6ef); border-left: 4px solid var(--acc, #1d5d91); border-radius: 12px; background: var(--card, #fff); color: var(--txt, #1a2634); box-shadow: 0 12px 32px rgb(0 0 0 / 22%); animation: wt-alert-in 0.25s ease-out; overflow: hidden; }
+.wt-alert.leaving { opacity: 0; transform: translateX(24px); transition: 0.25s; }
+.wt-alert-body { flex: 1; display: flex; gap: 12px; align-items: flex-start; padding: 12px 6px 12px 14px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.wt-alert-icon { font-size: 22px; line-height: 1.2; }
+.wt-alert-text { display: grid; gap: 2px; }
+.wt-alert-text b { font-size: 14px; }
+.wt-alert-text small { color: var(--muted, #68768a); font-size: 13px; line-height: 1.35; }
+.wt-alert-close { padding: 0 12px; border: 0; background: none; color: var(--muted, #68768a); font-size: 20px; cursor: pointer; }
+.wt-alert-close:hover, .wt-alert-body:hover { background: color-mix(in srgb, var(--acc, #1d5d91) 8%, transparent); }
+@keyframes wt-alert-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .wt-alert { animation: none; } .wt-alert.leaving { transition: none; } }

@@ -1,0 +1,451 @@
+/* tema-painel.css — Deixa a home com o mesmo visual do painel legado:
+   mesmas cores, fonte, cantos, cartões e botões. Carregado depois de home.css.
+   O tema (escuro/claro) e a cor de destaque vêm das configurações do painel. */
+
+/* ===== Tokens compartilhados com o painel legado ===== */
+:root {
+  --bg: #080a0d;
+  --panel: #0d1115;
+  --card: #11161b;
+  --line: #262c32;
+  --txt: #edf1f5;
+  --mut: #9aa3ad;
+  --acc: #1d5d91;
+  --acc2: color-mix(in srgb, var(--acc) 72%, #04090e);
+  --ok: #4ade80;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --r: 1rem;
+  --glow: #151a20;
+  --soft: color-mix(in srgb, var(--acc) 16%, var(--card));
+}
+body[data-theme="light"] {
+  --bg: #f3f7fb;
+  --panel: #ffffff;
+  --card: #ffffff;
+  --line: #d8e2ed;
+  --txt: #1a2634;
+  --mut: #617185;
+  --ok: #16a34a;
+  --bad: #ef4444;
+  --warn: #d97706;
+  --glow: #e2edf8;
+}
+
+/* ===== Tokens da home apontando para os do painel ===== */
+:root,
+body {
+  --ink: var(--txt);
+  --muted: var(--mut);
+  --surface: var(--bg);
+  --surface-alt: var(--panel);
+  --radius: var(--r);
+  --navy: var(--bg);
+  --navy-soft: var(--panel);
+  --blue: color-mix(in srgb, var(--acc) 55%, var(--txt));
+  --accent: var(--acc);
+  --accent-light: color-mix(in srgb, var(--acc) 45%, #ffffff);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* ===== Base: mesma fonte e fundo do painel ===== */
+html {
+  font-size: clamp(12px, 0.4vw + 10.5px, 17px);
+}
+body {
+  font:
+    1rem/1.5 "Segoe UI",
+    system-ui,
+    sans-serif;
+  color: var(--txt);
+  background: radial-gradient(circle at 60% 0, var(--glow) 0, var(--bg) 60%) fixed;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* ===== Botões: pílula com degradê, como button.b / button.g ===== */
+.btn {
+  border-radius: 99px;
+  font-weight: 600;
+}
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(90deg, var(--acc2), var(--acc));
+  box-shadow: none;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 30%, transparent);
+}
+.btn-ghost,
+.btn-outline {
+  color: var(--txt);
+  background: none;
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover,
+.btn-outline:hover {
+  color: var(--txt);
+  background: none;
+  border-color: var(--acc);
+}
+.btn-light {
+  color: #fff;
+  background: linear-gradient(90deg, var(--acc2), var(--acc));
+}
+.btn-outline-light {
+  color: var(--txt);
+  background: none;
+  border: 1px solid var(--line);
+}
+.btn-outline-light:hover {
+  background: none;
+  border-color: var(--acc);
+}
+
+/* ===== Cabeçalho e logo (mesma marca do menu lateral do painel) ===== */
+.site-header {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+.site-header.scrolled {
+  border-color: var(--line);
+  box-shadow: none;
+}
+.logo,
+.logo-light {
+  color: var(--txt);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.logo b {
+  font-weight: 800;
+}
+.logo img {
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0.15rem;
+  border-radius: 0.7rem;
+  object-fit: contain;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--acc);
+}
+.main-nav > a {
+  color: var(--mut);
+  border-radius: 0.8rem;
+}
+.main-nav > a:hover {
+  color: var(--txt);
+  background: var(--panel);
+}
+.menu-toggle {
+  background: var(--panel);
+  border-color: var(--line);
+}
+.menu-toggle span {
+  background: var(--txt);
+}
+@media (max-width: 1020px) {
+  .main-nav {
+    background: var(--panel) !important;
+    border-bottom: 1px solid var(--line) !important;
+    box-shadow: 0 1rem 2rem #0009 !important;
+  }
+}
+
+/* ===== Seções ===== */
+.hero,
+.section-dark {
+  color: var(--txt);
+  background: radial-gradient(circle at 80% 0, color-mix(in srgb, var(--acc) 22%, transparent), transparent 45%);
+}
+.hero-sub,
+.trust-row,
+.section-dark .section-head > p:not(.eyebrow),
+.sec-item p {
+  color: var(--mut);
+}
+.trust-row {
+  border-color: var(--line);
+}
+.hero-link {
+  color: var(--accent-light);
+}
+.hero-link:hover {
+  color: var(--txt);
+}
+.eyebrow,
+.hero .eyebrow,
+.section-dark .eyebrow {
+  color: var(--accent-light);
+}
+.hero h1 span {
+  color: var(--accent-light);
+}
+.section-alt {
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+  border-block: 1px solid var(--line);
+}
+.channels {
+  border-color: var(--line);
+}
+.channels ul {
+  color: var(--mut);
+}
+.stat {
+  border-left-color: var(--acc);
+}
+
+/* ===== Cartões: todos como .card do painel ===== */
+.compare,
+.steps li,
+.feature,
+.review,
+.company-card,
+.plan,
+.faq details,
+.sec-item,
+.plans-note {
+  color: var(--txt);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: none;
+}
+.compare:hover,
+.feature:hover {
+  border-color: var(--acc);
+  box-shadow: none;
+}
+.compare p {
+  color: var(--mut);
+}
+.compare-before {
+  background: color-mix(in srgb, var(--bad) 10%, var(--card));
+}
+.compare-after {
+  background: color-mix(in srgb, var(--ok) 10%, var(--card));
+}
+.compare-before b {
+  color: var(--bad);
+}
+.compare-after b,
+.badge-ok {
+  color: var(--ok);
+}
+.badge-ok {
+  background: color-mix(in srgb, var(--ok) 14%, var(--card));
+}
+.feature-ico {
+  background: var(--soft);
+  border-radius: 0.8rem;
+}
+.step-n,
+.avatar,
+.plan-tag,
+.msg-user {
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+}
+.plan-featured {
+  border: 2px solid var(--acc);
+}
+.plan-custom {
+  color: var(--txt);
+  border: 1px solid var(--acc);
+  background: radial-gradient(circle at 90% 0, color-mix(in srgb, var(--acc) 30%, transparent), transparent 50%), var(--card);
+}
+.plan-custom li,
+.plan-custom .plan-desc {
+  color: var(--mut);
+}
+.plan-custom .price-custom {
+  color: var(--txt);
+}
+.plan-custom ul {
+  border-color: var(--line);
+}
+.stars {
+  color: var(--warn);
+}
+
+/* ===== Demonstração do painel no topo ===== */
+.mock,
+.mock-float {
+  color: var(--txt);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.mock-top {
+  background: var(--panel);
+  border-color: var(--line);
+}
+.mock-top i {
+  background: var(--line);
+}
+.mock-top span {
+  background: var(--bg);
+}
+.mock-body {
+  color: var(--txt);
+}
+.mock-kpis div,
+.mock-chart {
+  background: var(--panel);
+  border-color: var(--line);
+  border-radius: 0.8rem;
+}
+.mock-chart b {
+  background: linear-gradient(180deg, var(--acc), var(--acc2));
+}
+
+/* ===== Rodapé ===== */
+.site-footer {
+  color: var(--mut);
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+}
+.site-footer h3 {
+  color: var(--txt);
+}
+.site-footer nav a {
+  color: var(--mut);
+}
+.site-footer nav a:hover {
+  color: var(--txt);
+}
+.footer-legal {
+  border-color: var(--line);
+}
+.disclaimer {
+  color: var(--mut);
+  opacity: 0.8;
+}
+
+/* ===== Modais e formulários (como os popups do painel) ===== */
+.modal {
+  color: var(--txt);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: 0 1rem 2rem #0009;
+}
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+.modal h2 {
+  color: var(--txt);
+}
+.modal-close:hover {
+  background: var(--card);
+}
+.field input,
+.field select,
+.field textarea,
+.chat-form input {
+  color: var(--txt);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.chat-form input:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 25%, transparent);
+}
+.form-error {
+  color: var(--bad);
+}
+.channel-checks label,
+.lead-form {
+  border-color: var(--line);
+}
+.estimate {
+  color: var(--txt);
+  background: var(--soft);
+}
+.estimate.warn {
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 12%, var(--card));
+}
+.tabs {
+  background: var(--card);
+}
+.tabs button[aria-selected="true"] {
+  color: var(--txt);
+  background: var(--acc);
+  box-shadow: none;
+}
+.msg-bot {
+  background: var(--card);
+}
+.chip {
+  color: var(--txt);
+  background: none;
+  border: 1px solid var(--line);
+}
+.chip:hover {
+  background: var(--acc);
+  border-color: var(--acc);
+}
+.ia-result h3,
+.ia-price {
+  color: var(--txt);
+}
+
+/* ===== Acesso ao painel: Entrar / Criar conta ===== */
+.modal-conta {
+  width: min(460px, 100% - 32px);
+}
+.conta-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.conta-marca b {
+  font-weight: 800;
+}
+.conta-marca img {
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0.2rem;
+  border-radius: 0.8rem;
+  object-fit: contain;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--acc);
+}
+.modal-conta .tabs {
+  margin: 1rem 0 1.1rem;
+  border-radius: 99px;
+}
+.modal-conta .tabs button {
+  border-radius: 99px;
+}
+.modal-conta .link-btn {
+  color: var(--accent-light);
+}
+.link-btn.inline {
+  display: inline;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+}
+.modal-conta .form-legal {
+  font-size: 0.85rem;
+}

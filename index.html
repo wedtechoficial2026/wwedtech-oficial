@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#080a0d" />
+    <meta
+      name="description"
+      content="WedTech — a loja do bairro vendendo na loja física, no site próprio, no WhatsApp e nos marketplaces com um estoque só. Compre online e retire na loja, com IA e automação."
+    />
+    <title>WedTech — Sua loja do bairro vendendo em todo lugar</title>
+    <link rel="icon" href="frontend/img/site/favicon-wedtech.png" type="image/png" />
+    <link rel="stylesheet" href="frontend/css/site/brand.css" />
+    <link rel="stylesheet" href="frontend/css/site/home.css" />
+    <link rel="stylesheet" href="frontend/css/site/tema-painel.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="site-header" id="topo">
+      <div class="container header-inner">
+        <a class="logo" href="#topo" aria-label="WedTech — início">
+          <img src="frontend/img/site/logo-wedtech.png" alt="" width="38" height="38" />
+          <span><b>Wed</b>Tech</span>
+        </a>
+        <nav class="main-nav" id="main-nav" aria-label="Principal">
+          <a href="#produto">O que faz</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#avaliacoes">Clientes</a>
+          <a href="#seguranca">Segurança</a>
+          <a href="marketplaces/">Vitrines conectadas</a>
+          <a href="#planos">Planos</a>
+          <a href="#faq">Dúvidas</a>
+        </nav>
+        <!-- Login e Contrate ficam só aqui, no canto superior direito -->
+        <div class="header-actions">
+          <a class="btn btn-ghost" href="/app/" data-app-link data-login target="_blank" rel="noopener">Entrar</a>
+          <a class="btn btn-primary" href="#planos">
+            <span class="hide-sm">Contrate agora</span><span class="show-sm">Planos</span>
+          </a>
+        </div>
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-controls="main-nav"
+          aria-expanded="false"
+          aria-label="Abrir menu"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Para o lojista de bairro que quer vender online</p>
+            <h1>Sua loja do bairro, vendendo em todo lugar. <span>Com um estoque só.</span></h1>
+            <p class="hero-sub">
+              Loja física, site próprio, WhatsApp e marketplaces conectados numa tela só.
+              Seu cliente compra online e retira na loja — e a WedTech AI cuida do estoque,
+              dos pedidos ao fornecedor e dos anúncios para você nunca vender o que não tem.
+            </p>
+            <a class="hero-link" href="#produto">Veja o que a WedTech faz por você ↓</a>
+            <a class="hero-link" href="/app/loja.html" data-loja-link target="_blank" rel="noopener" style="margin-left:22px">🏪 Ver uma loja de exemplo →</a>
+            <p class="mock-disclaimer">Prévia ilustrativa; gráficos e valores não representam atividade real da sua loja.</p>
+            <ul class="trust-row" aria-label="Informações do sistema">
+              <li><span aria-hidden="true">🔐</span> Acesso por conta</li>
+              <li><span aria-hidden="true">🗄️</span> SQLite local</li>
+              <li><span aria-hidden="true">📦</span> Estoque por local</li>
+            </ul>
+          </div>
+
+          <div class="hero-visual" aria-hidden="true">
+            <div class="mock">
+              <div class="mock-top">
+                <i></i><i></i><i></i>
+                <span>painel.wedtech.com.br</span>
+              </div>
+              <div class="mock-body">
+                <div class="mock-kpis">
+                  <div><small>Vendas hoje</small><strong>—</strong><em>após login</em></div>
+                  <div><small>Para retirar</small><strong>—</strong><em>após login</em></div>
+                  <div><small>Estoque</small><strong>—</strong><em>após login</em></div>
+                </div>
+                <div class="mock-chart">
+                  <b style="--h: 42%"></b><b style="--h: 58%"></b><b style="--h: 49%"></b>
+                  <b style="--h: 71%"></b><b style="--h: 64%"></b><b style="--h: 86%"></b>
+                  <b style="--h: 95%"></b>
+                </div>
+                <div class="mock-channels">
+                  <span><i style="--c: #173f73"></i>Loja física <b>canal</b></span>
+                  <span><i style="--c: #2f6fb2"></i>Site próprio <b>canal</b></span>
+                  <span><i style="--c: #ffe600"></i>Mercado Livre <b>canal</b></span>
+                  <span><i style="--c: #25d366"></i>WhatsApp <b>canal</b></span>
+                </div>
+              </div>
+            </div>
+            <div class="mock-float mock-float-ai">
+              <strong>✨ WedTech AI</strong>
+              O tênis acaba antes de o fornecedor entregar. Pausei o Mercado Livre e preparei o pedido de compra.
+            </div>
+            <div class="mock-float mock-float-sale">
+              <strong>🏪 Retirar na loja</strong> Pedido de demonstração
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CANAIS -->
+      <section class="channels" aria-label="Canais integrados">
+        <div class="container channels-inner">
+          <p>Um estoque só para todos os seus canais — com os canais certos para o seu ramo</p>
+          <ul>
+            <li>Loja física</li>
+            <li>Site próprio</li>
+            <li>WhatsApp e Instagram</li>
+            <li>Mercado Livre</li>
+            <li>Shopee</li>
+            <li>Magalu</li>
+            <li>Amazon</li>
+            <li>TikTok Shop</li>
+            <li>Shein</li>
+            <li>iFood</li>
+            <li>Rappi</li>
+            <li>99Food</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- DADOS OPERACIONAIS -->
+      <section class="stats" aria-labelledby="stats-title">
+        <div class="container">
+          <h2 id="stats-title" class="sr-only">Dados organizados pela WedTech</h2>
+          <div class="stats-grid">
+            <div class="stat">
+              <strong>Catálogo</strong>
+              <span>produtos, SKUs e variações</span>
+            </div>
+            <div class="stat">
+              <strong>Estoque</strong>
+              <span>saldos por loja e depósito</span>
+            </div>
+            <div class="stat">
+              <strong>Pedidos</strong>
+              <span>itens, canal e situação</span>
+            </div>
+            <div class="stat">
+              <strong>Histórico</strong>
+              <span>movimentos e alterações</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ANTES x DEPOIS -->
+      <section class="section" id="beneficios" aria-labelledby="ben-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Menos planilha, mais venda</p>
+            <h2 id="ben-title">Como a WedTech facilita o dia a dia do lojista</h2>
+            <p>O trabalho repetitivo fica com a plataforma. Você cuida do que faz a loja crescer.</p>
+          </header>
+          <div class="compare-grid">
+            <article class="compare">
+              <h3>Cadastro de anúncios</h3>
+              <div class="compare-before">
+                <small>Sem WedTech</small>
+                <p>Cadastrar o mesmo produto em 4 marketplaces, um por um.</p>
+                <b>≈ 2 horas por produto</b>
+              </div>
+              <div class="compare-after">
+                <small>Com WedTech</small>
+                <p>O WedTech ADS adapta título, fotos e ficha técnica para cada canal e publica em todos.</p>
+                <b>5 minutos</b>
+              </div>
+            </article>
+            <article class="compare">
+              <h3>Estoque</h3>
+              <div class="compare-before">
+                <small>Sem WedTech</small>
+                <p>Vende no Mercado Livre o último par que o cliente acabou de levar no balcão: pedido cancelado e reputação em queda.</p>
+                <b>Vendas perdidas</b>
+              </div>
+              <div class="compare-after">
+                <small>Com WedTech</small>
+                <p>Loja, site, WhatsApp e marketplaces usam o mesmo estoque. Se vai faltar antes de o fornecedor entregar, a IA pausa os marketplaces sozinha.</p>
+                <b>Zero venda sem estoque</b>
+              </div>
+            </article>
+            <article class="compare">
+              <h3>Vender online</h3>
+              <div class="compare-before">
+                <small>Sem WedTech</small>
+                <p>Cliente pergunta no WhatsApp se tem, você vai conferir na prateleira e responde horas depois.</p>
+                <b>Cliente desiste</b>
+              </div>
+              <div class="compare-after">
+                <small>Com WedTech</small>
+                <p>Seu site mostra o estoque real. O cliente compra, escolhe retirar na loja e recebe o QR de retirada no WhatsApp.</p>
+                <b>Venda até com a loja fechada</b>
+              </div>
+            </article>
+            <article class="compare">
+              <h3>Lucro</h3>
+              <div class="compare-before">
+                <small>Sem WedTech</small>
+                <p>Planilha no fim do mês para descobrir se houve lucro.</p>
+                <b>Decisão no escuro</b>
+              </div>
+              <div class="compare-after">
+                <small>Com WedTech</small>
+                <p>Lucro de cada produto na hora. Pergunte ao assistente: “quanto lucrei hoje?”</p>
+                <b>Resposta em segundos</b>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMO FUNCIONA -->
+      <section class="section section-alt" id="como-funciona" aria-labelledby="how-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Comece em um dia</p>
+            <h2 id="how-title">Como funciona</h2>
+          </header>
+          <ol class="steps">
+            <li>
+              <span class="step-n">1</span>
+              <h3>Fale com um consultor</h3>
+              <p>Ele entende a sua loja, monta a proposta e cria o seu acesso já com o ramo, o plano e os canais certos. Serve para roupa, comida, eletrônicos e mais.</p>
+            </li>
+            <li>
+              <span class="step-n">2</span>
+              <h3>Cadastre produtos e ligue os canais</h3>
+              <p>Bipe o código de barras com a câmera do celular. Seu site próprio já vem pronto; conecte WhatsApp, Instagram e marketplaces com o mesmo estoque.</p>
+            </li>
+            <li>
+              <span class="step-n">3</span>
+              <h3>Venda e deixe a IA cuidar</h3>
+              <p>Abra o caixa, venda em todos os canais e acompanhe tudo no Início. A IA prepara as compras com o fornecedor e pausa anúncios antes de faltar produto.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- O QUE FAZ -->
+      <section class="section" id="produto" aria-labelledby="prod-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">O que faz</p>
+            <h2 id="prod-title">Tudo o que sua loja precisa, em um só lugar</h2>
+          </header>
+          <div class="features">
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">🏪</span>
+              <small class="feature-brand">Omnichannel</small>
+              <h3>Compre online, retire na loja</h3>
+              <p>Seu site próprio vende com o estoque real. O cliente retira na loja com um QR code, na tela Retiradas — ou compra no balcão e recebe em casa.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">📦</span>
+              <small class="feature-brand">Estoque único</small>
+              <h3>Um saldo para todos os canais</h3>
+              <p>Loja e depósito no mesmo sistema. Cada venda reserva o produto na hora: nada é vendido duas vezes.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">📡</span>
+              <small class="feature-brand">IoT</small>
+              <h3>Leitor, câmera e sensores</h3>
+              <p>Bipe com o leitor ou a câmera do celular. Sensores na prateleira e etiquetas eletrônicas ficam juntos em Dispositivos (IoT).</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">⚡</span>
+              <small class="feature-brand">Automação + IA</small>
+              <h3>Compras e anúncios no automático</h3>
+              <p>Chegou ao mínimo? A IA prepara o pedido ao fornecedor. Vai faltar antes da entrega? Ela pausa os marketplaces.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">🧾</span>
+              <small class="feature-brand">Caixa (PDV)</small>
+              <h3>Caixa de mercado no balcão</h3>
+              <p>Abertura com fundo de troco, venda bipando com atalhos de teclado, sangria, suprimento e fechamento às cegas: o sistema mostra se sobrou ou faltou.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">↩️</span>
+              <small class="feature-brand">Pós-venda</small>
+              <h3>Devoluções como nos marketplaces</h3>
+              <p>O cliente pede a devolução, você analisa, confere o produto e escolhe vale-troca ou estorno — com os prazos do Código de Defesa do Consumidor.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">🚨</span>
+              <small class="feature-brand">Reposição</small>
+              <h3>Ruptura com um clique</h3>
+              <p>O painel mostra o que zerou ou vai faltar e pede ao fornecedor na hora. Cada fornecedor tem a sua ficha: contato, prazo, condições e produtos.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">🔔</span>
+              <small class="feature-brand">Notificações</small>
+              <h3>Avisos que levam ao assunto</h3>
+              <p>Pedido novo, devolução, estoque acabando: clique no aviso e o painel abre direto na tela certa.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">📣</span>
+              <small class="feature-brand">WedTech ADS</small>
+              <h3>Anúncios em todos os canais</h3>
+              <p>Crie o anúncio uma vez e publique no site, no WhatsApp e nos marketplaces, já ajustado a cada um.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">🤝</span>
+              <small class="feature-brand">Consultor dedicado</small>
+              <h3>Um consultor para a sua loja</h3>
+              <p>Ele cadastra sua loja, libera os canais do seu plano e responde os chamados que você abre na tela Suporte do painel.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-ico" aria-hidden="true">📊</span>
+              <small class="feature-brand">Financeiro</small>
+              <h3>Taxas e lucro por canal</h3>
+              <p>Comissão e taxa fixa de cada marketplace no cálculo: o painel avisa quando um produto dá prejuízo num canal. E pergunte à IA “quanto lucrei hoje?”.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- FLUXOS OPERACIONAIS -->
+      <section class="section section-alt" id="avaliacoes" aria-labelledby="rev-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Operação conectada</p>
+            <h2 id="rev-title">Cada registro acompanha o trabalho da loja</h2>
+            <p>Estes são fluxos do produto, não avaliações ou resultados atribuídos a clientes.</p>
+          </header>
+          <div class="reviews">
+            <figure class="review">
+              <div class="stars" aria-hidden="true">01 · ESTOQUE</div>
+              <blockquote>
+                Produto, variação, localização, quantidade e cada movimento ficam associados ao estoque da loja.
+              </blockquote>
+              <figcaption>
+                <span class="avatar" aria-hidden="true">01</span>
+                <span><b>Saldo por local</b> Loja e depósito</span>
+              </figcaption>
+            </figure>
+            <figure class="review">
+              <div class="stars" aria-hidden="true">02 · PEDIDOS</div>
+              <blockquote>
+                Cada pedido registra cliente, itens, preço, origem, status e reserva relacionada ao produto.
+              </blockquote>
+              <figcaption>
+                <span class="avatar" aria-hidden="true">02</span>
+                <span><b>Origem identificada</b> Loja, site ou canal</span>
+              </figcaption>
+            </figure>
+            <figure class="review">
+              <div class="stars" aria-hidden="true">03 · HISTÓRICO</div>
+              <blockquote>
+                Entradas, ajustes, perdas e recebimentos mantêm data e referência para consulta posterior.
+              </blockquote>
+              <figcaption>
+                <span class="avatar" aria-hidden="true">03</span>
+                <span><b>Registro consultável</b> Por produto e período</span>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEGURANÇA E LEGALIDADE -->
+      <section class="section section-dark" id="seguranca" aria-labelledby="sec-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Segurança e legalidade</p>
+            <h2 id="sec-title">Seus dados e os dos seus clientes protegidos</h2>
+            <p>Levamos segurança a sério porque sua operação depende disso.</p>
+          </header>
+          <div class="sec-grid">
+            <div class="sec-item">
+              <span aria-hidden="true">⚖️</span>
+              <h3>Conforme a LGPD</h3>
+              <p>Tratamento de dados conforme a Lei 13.709/2018, com encarregado (DPO) nomeado.</p>
+            </div>
+            <div class="sec-item">
+              <span aria-hidden="true">🔐</span>
+              <h3>Criptografia</h3>
+              <p>TLS 1.3 em trânsito e AES-256 para os dados armazenados.</p>
+            </div>
+            <div class="sec-item">
+              <span aria-hidden="true">💾</span>
+              <h3>Backups diários</h3>
+              <p>Cópias automáticas com retenção de 30 dias e recuperação testada.</p>
+            </div>
+            <div class="sec-item">
+              <span aria-hidden="true">👥</span>
+              <h3>Controle de acesso</h3>
+              <p>Permissões por perfil de usuário e registro de cada ação feita no sistema.</p>
+            </div>
+            <div class="sec-item">
+              <span aria-hidden="true">🇧🇷</span>
+              <h3>Dados no Brasil</h3>
+              <p>Infraestrutura hospedada em data centers no território nacional.</p>
+            </div>
+            <div class="sec-item">
+              <span aria-hidden="true">🔗</span>
+              <h3>Integrações oficiais</h3>
+              <p>Conexão aos marketplaces só pelas APIs oficiais. Nunca pedimos sua senha.</p>
+            </div>
+          </div>
+          <div class="company-card">
+            <div>
+              <h3>Empresa legalmente constituída</h3>
+              <dl>
+                <div><dt>Razão social</dt><dd>WedTech Tecnologia Ltda.</dd></div>
+                <div><dt>CNPJ</dt><dd>12.345.678/0001-90</dd></div>
+                <div><dt>Sede</dt><dd>Av. Paulista, 1000 — São Paulo/SP</dd></div>
+                <div><dt>Situação cadastral</dt><dd><span class="badge-ok">Ativa</span></dd></div>
+              </dl>
+            </div>
+            <ul class="company-docs">
+              <li><a href="#termos">Termos de uso</a></li>
+              <li><a href="#privacidade">Política de privacidade</a></li>
+              <li><a href="#dpo">Contato do encarregado (DPO)</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PREÇOS -->
+      <section class="section" id="planos" aria-labelledby="plans-title">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Preços</p>
+            <h2 id="plans-title">Escolha o plano ideal para sua loja</h2>
+            <p>O que muda entre os planos é quantos canais você integra e quais recursos pode usar. Sem taxa por venda.</p>
+          </header>
+          <div class="plans">
+            <article class="plan">
+              <h3>Básico</h3>
+              <p class="plan-desc">Para quem está dando o primeiro passo no digital.</p>
+              <p class="price price-custom">Sob consulta</p>
+              <ul>
+                <li><b>Até 3 canais de venda</b><small>ex.: loja física + site + WhatsApp</small></li>
+                <li>1 marketplace ou app de delivery</li>
+                <li>Estoque único e retire na loja</li>
+                <li>Leitor pela câmera do celular</li>
+                <li>1 usuário · 300 pedidos/mês</li>
+                <li>Suporte por e-mail</li>
+              </ul>
+              <button class="btn btn-outline btn-block" type="button" data-contratar="Básico">
+                Falar com um consultor
+              </button>
+            </article>
+            <article class="plan plan-featured">
+              <span class="plan-tag">Mais escolhido</span>
+              <h3>Profissional</h3>
+              <p class="plan-desc">Para lojas que já vendem em vários canais.</p>
+              <p class="price price-custom">Sob consulta</p>
+              <ul>
+                <li><b>Até 6 canais de venda</b><small>até 3 marketplaces ou apps de delivery</small></li>
+                <li>Até 2 lojas físicas</li>
+                <li>Troca e devolução em qualquer canal</li>
+                <li>Automações com IA (pedido ao fornecedor e trava de anúncios)</li>
+                <li>Datas especiais e sazonalidade</li>
+                <li>Nota fiscal e etiqueta automáticas</li>
+                <li>3 usuários · 2.000 pedidos/mês</li>
+                <li>Suporte por WhatsApp</li>
+              </ul>
+              <button class="btn btn-primary btn-block" type="button" data-contratar="Profissional">
+                Falar com um consultor
+              </button>
+            </article>
+            <article class="plan">
+              <h3>Avançado</h3>
+              <p class="plan-desc">Para operações de alto volume.</p>
+              <p class="price price-custom">Sob consulta</p>
+              <ul>
+                <li><b>Todos os 8 canais do seu ramo</b><small>marketplaces e apps de delivery</small></li>
+                <li>Tudo do Profissional</li>
+                <li>Sensores de prateleira (IoT)</li>
+                <li>Até 5 lojas físicas</li>
+                <li>Etiquetas eletrônicas nas prateleiras</li>
+                <li>10 usuários · 10.000 pedidos/mês</li>
+                <li>Suporte prioritário</li>
+              </ul>
+              <button class="btn btn-outline btn-block" type="button" data-contratar="Avançado">
+                Falar com um consultor
+              </button>
+            </article>
+            <article class="plan plan-custom">
+              <h3>Personalizado</h3>
+              <p class="plan-desc">Não achou o plano certo? Monte o seu.</p>
+              <p class="price price-custom">Sob medida</p>
+              <ul>
+                <li>Só os canais que sua loja usa</li>
+                <li>Mais pedidos, usuários ou depósitos</li>
+                <li>Acesso à API e integrações</li>
+                <li>Gerente de conta dedicado</li>
+              </ul>
+              <div class="plan-custom-actions">
+                <button class="btn btn-light btn-block" type="button" data-personalizado="vendedor">
+                  <span class="online-dot" aria-hidden="true"></span> Falar com vendedor
+                </button>
+                <button class="btn btn-outline-light btn-block" type="button" data-personalizado="ia">
+                  ✨ Montar com a IA
+                </button>
+              </div>
+            </article>
+          </div>
+          <div class="plans-note">
+            <span aria-hidden="true">💡</span>
+            <p><b>Por que não mostramos preço?</b> O valor depende de quantas lojas, canais e marketplaces a sua loja vai integrar (cada integração de marketplace tem custo). Um consultor WedTech conversa com você, monta a proposta e já cadastra a sua loja com tudo configurado.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section section-alt" id="faq" aria-labelledby="faq-title">
+        <div class="container container-narrow">
+          <header class="section-head">
+            <p class="eyebrow">Dúvidas frequentes</p>
+            <h2 id="faq-title">Perguntas frequentes</h2>
+          </header>
+          <div class="faq">
+            <details>
+              <summary>Funciona para o meu tipo de loja?</summary>
+              <p>Sim. A WedTech foi feita para o lojista de bairro de qualquer ramo: roupas e calçados, alimentação, eletrônicos e acessórios, presentes e muito mais. O consultor configura o ramo da sua loja no cadastro.</p>
+            </details>
+            <details>
+              <summary>Como funciona o “compre online e retire na loja”?</summary>
+              <p>Sua loja ganha um site com o estoque real. O cliente compra, o produto fica reservado na hora e ele recebe pelo WhatsApp um QR code. Na loja, você bipa o QR e entrega. Se ele não aparecer em 48 h, o produto volta a ficar à venda sozinho.</p>
+            </details>
+            <details>
+              <summary>Como eu crio a minha conta?</summary>
+              <p>Clique em <a href="#planos">Falar com um consultor</a>. Ele monta a proposta e cria o acesso da sua loja; você recebe o e-mail e uma senha provisória, que troca no primeiro acesso.</p>
+            </details>
+            <details>
+              <summary>Quanto custa?</summary>
+              <p>O valor depende dos canais e marketplaces que sua loja vai integrar. Um consultor monta a proposta com você, sem compromisso.</p>
+            </details>
+            <details>
+              <summary>E se eu precisar de ajuda?</summary>
+              <p>No painel, abra a tela Suporte e mande um chamado: o seu consultor responde por lá mesmo.</p>
+            </details>
+            <details>
+              <summary>Preciso instalar alguma coisa?</summary>
+              <p>Não. A WedTech funciona no navegador, no computador ou no celular. Basta entrar com seu e-mail e senha.</p>
+            </details>
+            <details>
+              <summary>Quanto tempo leva para começar a usar?</summary>
+              <p>A maioria dos lojistas conecta os canais e importa o catálogo no mesmo dia. Nossa equipe ajuda na implantação sem custo extra.</p>
+            </details>
+            <details>
+              <summary>Posso cancelar quando quiser?</summary>
+              <p>Sim. Não há fidelidade: é só avisar o seu consultor, sem multa.</p>
+            </details>
+            <details>
+              <summary>Nenhum plano serve para mim. E agora?</summary>
+              <p>Escolha o plano <a href="#planos">Personalizado</a>: fale com um vendedor online ou deixe a nossa IA montar um plano sob medida para a sua loja.</p>
+            </details>
+            <details>
+              <summary>A WedTech emite nota fiscal?</summary>
+              <p>Sim. A nota é gerada automaticamente na venda ou no envio, junto com a etiqueta.</p>
+            </details>
+            <details>
+              <summary>Meus dados estão seguros?</summary>
+              <p>Sim. Usamos criptografia, fazemos backups diários e seguimos a LGPD. Veja a seção <a href="#seguranca">Segurança</a>.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <a class="logo logo-light" href="#topo">
+            <img src="frontend/img/site/logo-wedtech.png" alt="" width="34" height="34" />
+            <span><b>Wed</b>Tech</span>
+          </a>
+          <p>Tecnologia e conexão para o futuro.</p>
+        </div>
+        <nav aria-label="Produto">
+          <h3>Produto</h3>
+          <a href="#produto">O que faz</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#planos">Planos</a>
+          <a href="#seguranca">Segurança</a>
+        </nav>
+        <nav aria-label="Empresa">
+          <h3>Empresa</h3>
+          <a href="#avaliacoes">Clientes</a>
+          <a href="#faq">Dúvidas</a>
+          <a href="#planos" data-personalizado="vendedor">Fale com um vendedor</a>
+        </nav>
+        <nav aria-label="Legal">
+          <h3>Legal</h3>
+          <a href="#termos" id="termos">Termos de uso</a>
+          <a href="#privacidade" id="privacidade">Política de privacidade</a>
+          <a href="#dpo" id="dpo">Encarregado (DPO)</a>
+        </nav>
+      </div>
+      <div class="container footer-legal">
+        <p>© <span data-year>2026</span> WedTech Tecnologia Ltda. · CNPJ 12.345.678/0001-90 · Av. Paulista, 1000 — São Paulo/SP</p>
+        <p class="disclaimer">
+          Protótipo de hackathon: empresa, CNPJ, números, avaliações e certificações são ilustrativos.
+          Mercado Livre, Shopee, Magalu, Amazon, TikTok Shop, WhatsApp e Instagram são marcas de seus respectivos donos.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Modal "Falar com um consultor": a contratação sempre passa por um consultor,
+         que confirma quais canais serão integrados (cada API de marketplace tem custo) -->
+    <dialog class="modal" id="contratar-modal" aria-labelledby="modal-title">
+      <button class="modal-close" type="button" data-close aria-label="Fechar">×</button>
+      <div class="modal-form-view">
+        <h2 id="modal-title">Falar com um consultor</h2>
+        <p class="modal-sub">Conte sobre a sua loja e onde quer vender. Um consultor monta a proposta com esses dados e cria o acesso da sua loja.</p>
+        <form id="contratar-form" novalidate>
+          <h3 class="form-section">1. Sua loja</h3>
+          <div class="field">
+            <label for="f-loja">Nome da loja</label>
+            <input id="f-loja" name="loja" autocomplete="organization" maxlength="80" placeholder="Ex.: Moda da Paula" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-ramo">Ramo</label>
+              <select id="f-ramo" name="ramo">
+                <option value="moda">Moda e calçados</option>
+                <option value="alimentacao">Alimentação e empório</option>
+                <option value="eletronicos">Eletrônicos e acessórios</option>
+                <option value="outro">Outro ramo</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-cnpj">CNPJ <small>(opcional)</small></label>
+              <input id="f-cnpj" name="cnpj" inputmode="numeric" autocomplete="off" placeholder="00.000.000/0000-00" maxlength="18" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-cidade">Cidade / UF</label>
+              <input id="f-cidade" name="cidade" autocomplete="address-level2" maxlength="80" placeholder="Ex.: Campinas/SP" />
+            </div>
+            <div class="field">
+              <label for="f-lojas">Lojas físicas</label>
+              <input id="f-lojas" name="lojas" type="number" inputmode="numeric" min="0" max="50" value="1" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-produtos">Quantos produtos você vende, mais ou menos?</label>
+            <select id="f-produtos" name="produtos">
+              <option value="">Não sei dizer</option>
+              <option value="50">Até 50</option>
+              <option value="200">De 50 a 200</option>
+              <option value="500">De 200 a 500</option>
+              <option value="1000">De 500 a 1.000</option>
+              <option value="2000">Mais de 1.000</option>
+            </select>
+          </div>
+          <h3 class="form-section">2. Onde você quer vender</h3>
+          <div class="field">
+            <label for="f-plano">Plano de interesse</label>
+            <select id="f-plano" name="plano">
+              <option value="Básico">Básico — até 3 canais</option>
+              <option value="Profissional" selected>Profissional — até 6 canais</option>
+              <option value="Avançado">Avançado — todos os 8 canais do seu ramo</option>
+            </select>
+          </div>
+          <fieldset class="field channels-field">
+            <legend>Onde você quer vender?</legend>
+            <div class="channel-checks">
+              <label><input type="checkbox" name="canal" value="Loja física" data-kind="proprio" checked /> Loja física</label>
+              <label><input type="checkbox" name="canal" value="Site próprio" data-kind="proprio" checked /> Site próprio</label>
+              <label><input type="checkbox" name="canal" value="WhatsApp / Instagram" data-kind="social" /> WhatsApp / Instagram</label>
+              <label><input type="checkbox" name="canal" value="Mercado Livre" data-kind="marketplace" /> Mercado Livre</label>
+              <label><input type="checkbox" name="canal" value="Shopee" data-kind="marketplace" /> Shopee</label>
+              <label><input type="checkbox" name="canal" value="Magalu" data-kind="marketplace" /> Magalu</label>
+              <label><input type="checkbox" name="canal" value="Amazon" data-kind="marketplace" /> Amazon</label>
+              <label><input type="checkbox" name="canal" value="TikTok Shop" data-kind="marketplace" /> TikTok Shop</label>
+              <label><input type="checkbox" name="canal" value="Shein" data-kind="marketplace" /> Shein</label>
+              <label><input type="checkbox" name="canal" value="iFood" data-kind="delivery" /> iFood</label>
+              <label><input type="checkbox" name="canal" value="Rappi" data-kind="delivery" /> Rappi</label>
+              <label><input type="checkbox" name="canal" value="99Food" data-kind="delivery" /> 99Food</label>
+            </div>
+          </fieldset>
+          <div class="estimate" aria-live="polite" data-estimate></div>
+          <h3 class="form-section">3. Seus contatos</h3>
+          <div class="field">
+            <label for="f-nome">Nome completo</label>
+            <input id="f-nome" name="nome" autocomplete="name" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-email">E-mail</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" placeholder="voce@sualoja.com.br" required />
+            </div>
+            <div class="field">
+              <label for="f-whats">WhatsApp</label>
+              <input id="f-whats" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 90000-0000" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-obs">Algo mais que o consultor precisa saber? <small>(opcional)</small></label>
+            <textarea id="f-obs" name="observacoes" rows="2" maxlength="500" placeholder="Ex.: já vendo no Mercado Livre e quero juntar o estoque com a loja"></textarea>
+          </div>
+          <p class="form-error" id="form-error" role="alert"></p>
+          <button class="btn btn-primary btn-block btn-lg" type="submit">Quero minha proposta</button>
+          <button class="link-btn" type="button" data-personalizado="vendedor">
+            Prefere conversar agora? Fale com um vendedor online
+          </button>
+          <p class="form-legal">Ao continuar, você concorda com os Termos de uso e a Política de privacidade. Seus dados vão só para a equipe WedTech, para montar a sua proposta.</p>
+        </form>
+      </div>
+      <div class="modal-success" hidden>
+        <div class="success-ico" aria-hidden="true">✓</div>
+        <h2>Tudo certo, <span data-success-name></span>!</h2>
+        <p>Recebemos seu interesse no plano <b data-success-plan></b> com <b data-success-channels></b>. Um consultor vai chamar você no WhatsApp em até 1 dia útil para confirmar as integrações e enviar a proposta.</p>
+        <a class="btn btn-primary btn-block btn-lg" href="/app/" data-app-link target="_blank" rel="noopener">Conhecer o painel (demonstração)</a>
+      </div>
+    </dialog>
+
+    <!-- Modal do plano personalizado: vendedor online ou IA -->
+    <dialog class="modal modal-custom" id="custom-modal" aria-labelledby="custom-title">
+      <button class="modal-close" type="button" data-close aria-label="Fechar">×</button>
+      <h2 id="custom-title">Plano personalizado</h2>
+      <p class="modal-sub">Converse com um vendedor ou deixe a IA montar o plano ideal para você.</p>
+      <div class="tabs" role="tablist" aria-label="Como montar seu plano">
+        <button type="button" role="tab" id="tab-vendedor" aria-controls="panel-vendedor" aria-selected="true">
+          <span class="online-dot" aria-hidden="true"></span> Falar com vendedor
+        </button>
+        <button type="button" role="tab" id="tab-ia" aria-controls="panel-ia" aria-selected="false" tabindex="-1">
+          ✨ Montar com a IA
+        </button>
+      </div>
+
+      <section class="tab-panel" role="tabpanel" id="panel-vendedor" aria-labelledby="tab-vendedor">
+        <div class="chat-head">
+          <span class="avatar" aria-hidden="true">CA</span>
+          <div>
+            <b>Camila Andrade</b>
+            <small><span class="online-dot" aria-hidden="true"></span> Consultora de vendas · online agora</small>
+          </div>
+        </div>
+        <div class="chat-log" id="chat-log" aria-live="polite"></div>
+        <form class="chat-form" id="chat-form">
+          <label class="sr-only" for="chat-input">Sua mensagem</label>
+          <input id="chat-input" autocomplete="off" placeholder="Escreva sua mensagem..." />
+          <button class="btn btn-primary" type="submit">Enviar</button>
+        </form>
+      </section>
+
+      <section class="tab-panel" role="tabpanel" id="panel-ia" aria-labelledby="tab-ia" hidden>
+        <div class="ia-flow" id="ia-flow" aria-live="polite"></div>
+      </section>
+    </dialog>
+
+    <!-- Acesso: Entrar (api/login.php). Contas das lojas são criadas pelo consultor; o painel abre em nova aba -->
+    <dialog class="modal modal-conta" id="login-modal" aria-labelledby="login-title">
+      <button class="modal-close" type="button" data-close aria-label="Fechar">×</button>
+      <div class="conta-marca">
+        <img src="frontend/img/site/logo-wedtech.png" alt="" width="44" height="44" />
+        <span><b>Wed</b>Tech</span>
+      </div>
+      <h2 id="login-title">Acesse seu painel</h2>
+      <p class="modal-sub">Lojistas entram no painel da loja; consultores, na área do consultor.</p>
+
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="l-email">E-mail</label>
+          <input id="l-email" name="email" type="email" autocomplete="username" placeholder="voce@sualoja.com.br" required />
+        </div>
+        <div class="field">
+          <label for="l-senha">Senha</label>
+          <input id="l-senha" name="senha" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </div>
+        <p class="form-error" id="login-error" role="alert"></p>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">Entrar</button>
+        <div class="exemplos">
+          <button class="link-btn" type="button" data-exemplo="vendedor">✨ Exemplo: vendedor (lojista)</button>
+          <button class="link-btn" type="button" data-exemplo="adm">✨ Exemplo: adm (consultor)</button>
+        </div>
+        <p class="form-legal">Ainda não tem acesso? <button class="link-btn inline" type="button" data-sem-conta>Falar com um consultor</button></p>
+      </form>
+
+
+      <div class="modal-success" id="login-ok" hidden>
+        <div class="success-ico" aria-hidden="true">✓</div>
+        <h2 id="login-ok-title">Tudo pronto!</h2>
+        <p>Abra o painel em uma nova aba.</p>
+        <a class="btn btn-primary btn-block btn-lg" href="modulos/index.php" target="_blank" rel="noopener" data-open-painel>Abrir painel</a>
+      </div>
+    </dialog>
+
+    <script src="assets/config.js"></script>
+    <script src="frontend/js/site/config.js"></script>
+    <script src="frontend/js/site/home.js"></script>
+    <script src="frontend/js/site/conta.js"></script>
+  </body>
+</html>

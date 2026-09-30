@@ -1,0 +1,139 @@
+/* Área do consultor: reaproveita o visual do painel (app.css, app-components.css) e acrescenta poucos detalhes */
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0; }
+.facts dt { color: var(--muted); font-size: 13px; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.facts code { font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+.module-list { display: grid; gap: 8px; }
+.check-line { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.form-grid textarea, .lead-form textarea, .chat-form textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--txt); font: inherit; resize: vertical; }
+.form-grid .block-title { grid-column: 1 / -1; margin: 12px 0 0; }
+.field small.muted { display: block; margin-top: 3px; font-size: 12px; }
+.lead-form { display: grid; gap: 6px; min-width: 220px; }
+.lead-form select { padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--txt); font: inherit; }
+.credential-card { max-width: 520px; text-align: left; }
+.credential-card .facts { margin: 16px 0; }
+.sidebar-bottom .side-link { display: block; margin-top: 6px; padding: 0; text-align: left; text-decoration: none; font-size: 13px; }
+.actions.wrap { flex-wrap: wrap; }
+
+/* Tempo real: online agora, mensagens novas e contadores do menu */
+.online-now { display: inline-flex; align-items: center; gap: 6px; color: #1f9d55; font-weight: 700; }
+.online-now::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 25%, transparent); }
+.unread-pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.channel-row .unread-pill { margin-left: auto; margin-right: 6px; }
+.nav-badge.hot { background: #e5484d; animation: badge-pop 0.4s ease; }
+@keyframes badge-pop { 50% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .nav-badge.hot { animation: none; } }
+tr.row-unread td { background: color-mix(in srgb, var(--acc) 6%, transparent); }
+
+/* Chamado como conversa */
+.chat .ticket-thread { max-height: min(56vh, 520px); overflow-y: auto; padding-right: 4px; }
+.chat-form { display: grid; grid-template-columns: 1fr 200px auto; align-items: end; gap: 10px; }
+.chat-form select { padding: 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--txt); font: inherit; }
+
+/* Contrato e liberações */
+.contract-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; align-items: start; margin-top: 8px; }
+.contract-main .block-title { margin: 18px 0 10px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.contract-main .block-title:first-child { margin-top: 4px; }
+.plan-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.plan-card { display: grid; gap: 6px; align-content: start; padding: 16px; border: 2px solid var(--line); border-radius: 14px; background: var(--card); color: var(--txt); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.plan-card:hover { border-color: color-mix(in srgb, var(--acc) 50%, var(--line)); }
+.plan-card.selected { border-color: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 15%, transparent); }
+.plan-card .plan-name { font-weight: 800; font-size: 16px; }
+.plan-card .plan-name small { margin-left: 4px; padding: 1px 7px; border-radius: 999px; background: var(--panel); color: var(--muted); font-size: 11px; font-weight: 600; }
+.plan-card strong { font-size: 22px; }
+.plan-card strong small { font-size: 13px; font-weight: 500; color: var(--muted); }
+.plan-card span { font-size: 13px; }
+.feature-list { display: grid; gap: 8px; }
+.feature-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.feature-row .feature-text { display: grid; gap: 2px; }
+.feature-row .feature-text small { font-size: 12.5px; }
+.feature-state { padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.feature-state.included { background: var(--panel); color: var(--muted); }
+.feature-state.extra { background: color-mix(in srgb, var(--acc) 16%, var(--card)); color: color-mix(in srgb, var(--acc) 70%, var(--txt)); }
+.feature-row .segmented { grid-column: 2 / -1; }
+.segmented { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.segmented button { padding: 6px 12px; border-radius: 8px; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.segmented button.active { background: var(--card); color: var(--txt); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
+.segmented button.active.extra { background: var(--acc); color: #fff; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.stepper button { width: 36px; height: 34px; font-size: 18px; font-weight: 700; }
+.stepper button:hover:not(:disabled) { background: var(--panel); }
+.stepper output { min-width: 34px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.contract-summary { position: sticky; top: 16px; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.contract-summary h3 { font-size: 15px; }
+.quote-builder .check-line { align-self: end; min-height: 42px; }
+.quote-builder .check-line input { width: 18px; height: 18px; flex: none; accent-color: var(--acc); }
+.contract-summary .field input, .contract-summary .field select, .quote-builder .field input:not([type="checkbox"]), .quote-builder .field select, .prices .field input, .prices td input, .share-link input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--txt); font: inherit; }
+.inline-field { display: flex; gap: 8px; align-items: center; }
+.inline-field input { flex: 1; min-width: 0; }
+.price-lines { display: grid; gap: 6px; font-size: 13.5px; }
+.price-lines > div { display: flex; justify-content: space-between; gap: 12px; }
+.price-lines > div span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.price-lines .discount { color: #1f9d55; }
+.price-lines .total { padding-top: 8px; border-top: 1px solid var(--line); font-weight: 800; font-size: 15px; }
+.change-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13.5px; }
+.change-list li { padding: 7px 10px; border-radius: 8px; background: var(--card); }
+.change-list li::before { content: "• "; }
+.change-list li.gain { background: color-mix(in srgb, #22c55e 12%, var(--card)); }
+.change-list li.gain::before { content: "＋ "; color: #1f9d55; }
+.change-list li.loss { background: color-mix(in srgb, #e5484d 12%, var(--card)); }
+.change-list li.loss::before { content: "－ "; color: #e5484d; }
+
+/* Cotação */
+.quote-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+.quote-builder { display: grid; gap: 18px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.quote-builder .card { margin: 0; }
+.quote-builder h2 { margin-bottom: 14px; }
+.quote-builder .block-title { margin: 18px 0 10px; font-size: 14px; }
+.quote-builder[disabled] { opacity: 0.75; }
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.pick-chip { display: grid; gap: 2px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--card); color: var(--txt); text-align: left; }
+.pick-chip small { color: var(--muted); font-size: 12px; }
+.pick-chip.active { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 10%, var(--card)); }
+.pick-chip.active b::before { content: "✓ "; color: var(--acc); }
+.quote-side { position: sticky; top: 16px; display: grid; gap: 14px; }
+.quote-side .card { margin: 0; }
+.quote-side h3 { margin: 14px 0 8px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.quote-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.quote-totals div { display: grid; gap: 2px; padding: 12px; border-radius: 12px; background: var(--panel); }
+.quote-totals small { color: var(--muted); font-size: 12px; }
+.quote-totals strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.quote-totals em { color: var(--muted); font-size: 11.5px; font-style: normal; }
+.quote-actions { display: grid; gap: 10px; }
+.quote-actions > .btn { width: 100%; justify-content: center; }
+.quote-actions.accepted { border-color: #22c55e; }
+.share-link { display: grid; gap: 6px; }
+.share-link label { font-size: 13px; font-weight: 600; }
+#quote-summary .validation { margin-top: 14px; }
+
+/* Tabela de preços */
+.prices { display: grid; gap: 18px; }
+.prices .card { margin: 0; }
+.prices h2 { margin-bottom: 14px; }
+.prices .form-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.prices td input { max-width: 150px; }
+.prices input:disabled { opacity: 0.8; }
+.form-actions { display: flex; justify-content: flex-end; }
+
+@media (max-width: 1100px) {
+  .contract-grid, .quote-grid { grid-template-columns: 1fr; }
+  .contract-summary, .quote-side { position: static; }
+}
+@media (max-width: 700px) {
+  .facts { grid-template-columns: 1fr; }
+  .plan-cards { grid-template-columns: 1fr; }
+  .feature-row { grid-template-columns: 1fr auto; }
+  .feature-row .feature-state { grid-column: 1 / -1; justify-self: start; }
+  .feature-row .segmented { grid-column: 1 / -1; }
+  .chat-form { grid-template-columns: 1fr; }
+  .quote-totals { grid-template-columns: 1fr; }
+}
+
+/* Envio da proposta: WhatsApp e e-mail direto para o cliente */
+.send-options { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel); }
+.send-options h3 { margin: 0 !important; }
+.send-options > .btn, .send-options .actions .btn:first-child { justify-content: center; }
+.send-options > .btn { width: 100%; }
+.btn.whatsapp { border-color: #25d366; background: #25d366; color: #0b2e17; font-weight: 700; }
+.btn.whatsapp:hover { background: #1fbe5b; }
+.prices .caption { margin: -6px 0 14px; }

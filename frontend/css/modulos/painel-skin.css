@@ -1,0 +1,135 @@
+/* painel-skin.css — Tokens e formas do dashboard aplicados ao painel omnichannel.
+  Carregado por último. As cores dos outros CSS já apontam para estas variáveis. */
+
+:root {
+  --bg: #080a0d;
+  --panel: #0d1115;
+  --card: #11161b;
+  --line: #262c32;
+  --txt: #edf1f5;
+  --mut: #9aa3ad;
+  --acc: #1d5d91;
+  --acc2: color-mix(in srgb, var(--acc) 72%, #04090e);
+  --ok: #4ade80;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --r: 1rem;
+  --glow: #151a20;
+  /* nomes usados pelo CSS original do painel */
+  --blue: var(--acc);
+  --muted: var(--mut);
+  --accent: var(--acc);
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  --bg: #f3f7fb;
+  --panel: #ffffff;
+  --card: #ffffff;
+  --line: #d8e2ed;
+  --txt: #1a2634;
+  --mut: #617185;
+  --ok: #16a34a;
+  --bad: #ef4444;
+  --warn: #d97706;
+  --glow: #e2edf8;
+  color-scheme: light;
+}
+
+/* ===== Base: mesma fonte e fundo do dashboard ===== */
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--txt);
+  background: var(--bg);
+}
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--txt);
+  background: radial-gradient(circle at 60% 0, var(--glow) 0, var(--bg) 60%) fixed;
+}
+h1,
+h2,
+h3 {
+  color: var(--txt);
+  font-weight: 600;
+}
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+input,
+select,
+textarea {
+  color: var(--txt);
+  background: var(--bg);
+  border-color: var(--line);
+}
+
+/* ===== Formas do dashboard: cartões com cantos de 1rem, botões em pílula ===== */
+.card,
+.drawer,
+.tour-card,
+.setup-card,
+.login-card,
+.notif-panel {
+  border-radius: var(--r);
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.btn {
+  border-radius: 99px;
+  color: var(--txt);
+  background: none;
+  border: 1px solid var(--line);
+}
+.btn:hover {
+  filter: none;
+  border-color: var(--acc);
+}
+.btn.primary {
+  color: #fff;
+  border: 0;
+  background: linear-gradient(90deg, var(--acc2), var(--acc));
+}
+.btn.primary:hover {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 30%, transparent);
+}
+.badge {
+  border-radius: 99px;
+}
+
+/* ===== Dentro do dashboard (iframe): some o menu e o topo próprios ===== */
+html.embed,
+html.embed body {
+  background: transparent;
+}
+html.embed .sidebar,
+html.embed .topbar,
+html.embed .skip-link,
+html.embed .sidebar-backdrop {
+  display: none !important;
+}
+html.embed .layout {
+  display: block;
+  min-height: 0;
+}
+html.embed .workspace,
+html.embed .sidebar.expanded + .workspace {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+html.embed main {
+  max-width: none;
+  padding: 0 0 2rem;
+}
+html.embed .login-screen {
+  min-height: 70vh;
+  background: transparent;
+  border-radius: var(--r);
+}
+/* Mesmo color-scheme do dashboard: evita fundo branco atrás do iframe */
+html.embed,
+html.embed[data-theme="light"] {
+  color-scheme: normal;
+}
