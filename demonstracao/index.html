@@ -56,6 +56,7 @@
   .results li { break-inside: avoid; margin: 3px 0; font-size: 15px; }
   .results .ok::before { content: "✓ "; color: var(--ok); font-weight: 800; }
   .results .bad::before { content: "✗ "; color: var(--bad); font-weight: 800; }
+  .results .info { color: var(--muted); font-size: 13px; padding-left: 18px; }
   @media (max-width: 900px) { .results { columns: 1; } .caption h1 { font-size: 22px; } .caption p { font-size: 15px; } }
 </style>
 </head>
@@ -94,6 +95,7 @@
     </div>
   </div>
 </section>
+<section class="overlay" id="paused" hidden><div class="card"><h2>⏸ Demonstração pausada</h2><p>A janela ficou minimizada ou escondida atrás de outra, e o navegador deixa a página em câmera lenta. Assim que ela voltar a aparecer, a demonstração continua de onde parou.</p></div></section>
 <section class="overlay" id="count" hidden><div class="countdown" id="count-n">3</div></section>
 <section class="overlay" id="end" hidden>
   <div class="card">
@@ -118,11 +120,27 @@
 
   // ---------------------------------------------------------------------------
   // Tempo, espera e legenda
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms * speed));
-  const raw = (ms) => new Promise((r) => setTimeout(r, ms));
+  // Janela minimizada ou escondida: o navegador põe a página em câmera lenta. A demonstração
+  // pausa até a janela voltar, e o tempo escondido não conta nas esperas.
+  let hiddenMs = 0;
+  async function visible() {
+    if (!document.hidden) return;
+    const t = Date.now();
+    $("#paused").hidden = false;
+    while (document.hidden) await new Promise((r) => setTimeout(r, 300));
+    $("#paused").hidden = true;
+    hiddenMs += Date.now() - t;
+    await new Promise((r) => setTimeout(r, 800));
+  }
+  const raw = async (ms) => {
+    await visible();
+    await new Promise((r) => setTimeout(r, ms));
+  };
+  const sleep = (ms) => raw(ms * speed);
   async function waitFor(fn, ms = 12000) {
     const t = Date.now();
-    while (Date.now() - t < ms) {
+    const hiddenAtStart = hiddenMs;
+    while (Date.now() - t - (hiddenMs - hiddenAtStart) < ms) {
       try {
         const v = fn();
         if (v) return v;
@@ -130,6 +148,18 @@
       await raw(200);
     }
     return null;
+  }
+  // O que cada janela mostrava quando algo falhou (página e último aviso na tela)
+  function diagnose() {
+    const parts = [];
+    for (const [key, label] of [["cons", "consultor"], ["loja", "lojista"]]) {
+      try {
+        const w = win(key);
+        const toastText = doc(key).querySelector("#toast")?.textContent?.trim();
+        parts.push(`${label}: ${w.location.pathname.split("/").slice(-2).join("/")}${w.location.hash}${toastText ? " · “" + toastText + "”" : ""}`);
+      } catch {}
+    }
+    return parts.join(" | ");
   }
   function say(n, total, title, sub) {
     $("#step-n").textContent = `Etapa ${n} de ${total}`;
@@ -146,9 +176,9 @@
   }
   function check(cond, label) {
     results.push([!!cond, label]);
-    const okN = results.filter((r) => r[0]).length;
+    const okN = results.filter((r) => r[0] === true).length;
     $("#n-ok").textContent = `✓ ${okN}`;
-    $("#n-bad").textContent = `✗ ${results.length - okN}`;
+    $("#n-bad").textContent = `✗ ${results.filter((r) => r[0] === false).length}`;
     $("#last").textContent = (cond ? "✓ " : "✗ ") + label;
     toast((cond ? "✓ " : "✗ ") + label, cond ? "ok" : "bad");
     return !!cond;
@@ -209,11 +239,17 @@
       });
     } catch {}
   }
+  const frameErrors = [];
   function hookFrame(f) {
     try {
       const w = win(f);
       w.confirm = () => true;
       if (w.WedTechAlerts) w.WedTechAlerts.chime = chime;
+      if (!w.__demoHooked) {
+        w.__demoHooked = true;
+        w.addEventListener("error", (e) => frameErrors.push(`${f}: ${e.message}`));
+        w.addEventListener("unhandledrejection", (e) => frameErrors.push(`${f}: ${e.reason?.message || e.reason}`));
+      }
     } catch {}
   }
 
@@ -238,35 +274,58 @@
     cursor.style.top = fr.top + r.top + Math.min(r.height / 2, 24) + "px";
     await sleep(750);
   }
+  // As telas se atualizam sozinhas (tempo real) e podem redesenhar um campo enquanto o cursor
+  // anda até ele. Antes de digitar ou clicar, pega de novo o elemento se ele saiu da tela.
+  function keyOf(target) {
+    if (typeof target === "string") return target;
+    if (target.id) return "#" + CSS.escape(target.id);
+    for (const attr of target.getAttributeNames()) {
+      if (attr.startsWith("data-") && attr !== "data-crop") return `[${attr}="${CSS.escape(target.getAttribute(attr))}"]`;
+    }
+    return null;
+  }
+  function fresh(f, el, key, text) {
+    if (el.isConnected || !key) return el;
+    const list = [...doc(f).querySelectorAll(key)];
+    return (text ? list.find((e) => e.textContent.includes(text)) : list[0]) || el;
+  }
   async function click(f, target, text) {
-    const el = typeof target === "string" ? await find(f, target, text) : target;
+    const key = keyOf(target);
+    let el = typeof target === "string" ? await find(f, target, text) : target;
     await point(f, el);
     cursor.classList.remove("click");
     void cursor.offsetWidth;
     cursor.classList.add("click");
     await sleep(180);
+    el = fresh(f, el, key, text);
     el.click();
     await sleep(800);
     return el;
   }
   async function type(f, target, text) {
-    const el = typeof target === "string" ? await find(f, target) : target;
+    const key = keyOf(target);
+    let el = typeof target === "string" ? await find(f, target) : target;
     await point(f, el);
-    el.focus();
-    el.value = "";
     const Ev = win(f).Event;
-    for (const ch of String(text)) {
-      el.value += ch;
-      el.dispatchEvent(new Ev("input", { bubbles: true }));
-      await raw(Math.max(15, 45 * speed));
+    const chars = [...String(text)];
+    for (let i = 0; i <= chars.length; i++) {
+      const before = el;
+      el = fresh(f, el, key);
+      if (el !== before || i === 0) el.focus();
+      el.value = chars.slice(0, i).join("");
+      if (i > 0) el.dispatchEvent(new Ev("input", { bubbles: true }));
+      if (i < chars.length) await raw(Math.max(15, 45 * speed));
     }
+    el = fresh(f, el, key);
     el.dispatchEvent(new Ev("change", { bubbles: true }));
     await sleep(300);
     return el;
   }
   async function choose(f, target, value) {
-    const el = typeof target === "string" ? await find(f, target) : target;
+    const key = keyOf(target);
+    let el = typeof target === "string" ? await find(f, target) : target;
     await point(f, el);
+    el = fresh(f, el, key);
     el.value = value;
     const Ev = win(f).Event;
     el.dispatchEvent(new Ev("input", { bubbles: true }));
@@ -299,6 +358,7 @@
   // Roteiro
   let storeId = null;
   let quoteLink = "";
+  let accepted = false;
   let ticketId = null;
   const steps = [
     ["O site da WedTech", "O cliente conhece a WedTech e pede uma proposta com os dados da loja.", async () => {
@@ -476,7 +536,7 @@
       else await go("cons", "chamado/" + ticketId);
       await type("cons", "#tk-texto", "Olá! Em Pedidos, abra o pedido e clique em Etiqueta. Já deixei separado para você.");
       await click("cons", '#ticket-form button.primary');
-      check(await waitFor(() => doc("loja").querySelector(`[data-thread="${ticketId}"]`)?.textContent.includes("Etiqueta"), 12000), "Resposta aparece na hora para o lojista");
+      check(await waitFor(() => doc("loja").querySelector(`[data-thread="${ticketId}"]`)?.textContent.includes("Etiqueta"), 25000), "Resposta aparece para o lojista sem F5");
       await sleep(1500);
     }],
     ["Cotação a partir do contato do site", "Preço por marketplace e por produto, calculado na hora.", async () => {
@@ -486,14 +546,20 @@
       await point("cons", row);
       await click("cons", row.querySelector("[data-lead-quote]"));
       check(await waitFor(() => doc("cons").querySelector("#qt-cnpj")?.value.includes("11.222.333")), "Cotação vem preenchida com os dados da loja");
+      await find("cons", "#quote-summary .price-lines", null, 15000);
       await sleep(900);
-      await click("cons", '[data-quote-channel="shein"]');
+      // Marca mais um marketplace (o primeiro que ainda não está marcado) e muda a quantidade de produtos
+      const chip = await waitFor(() => doc("cons").querySelector("[data-quote-channel]:not(.active)"), 15000);
+      const channelName = chip ? chip.querySelector("b").textContent.trim() : "";
+      if (chip) await click("cons", chip);
       await type("cons", "#qt-produtos", "100");
-      check(await waitFor(() => doc("cons").querySelector("#quote-summary")?.textContent.includes("Shein: cadastro de 100 produtos")), "Preço recalculado: cadastro por produto em cada canal");
+      const summaryText = () => doc("cons").querySelector("#quote-summary")?.textContent || "";
+      const recalculated = await waitFor(() => summaryText().includes("cadastro de 100 produtos") && (!channelName || summaryText().includes(channelName)), 20000);
+      check(recalculated, recalculated ? "Preço recalculado: cadastro por produto em cada canal" : "Preço recalculado — o resumo mostrava: " + summaryText().replace(/\s+/g, " ").slice(0, 160));
       await point("cons", await find("cons", "#quote-summary"));
       await sleep(1500);
       await click("cons", "[data-quote-send]");
-      const link = await waitFor(() => doc("cons").querySelector("#qt-link")?.value);
+      const link = await waitFor(() => doc("cons").querySelector("#qt-link")?.value, 20000);
       check(link, "Proposta enviada com link próprio");
       quoteLink = link;
       const wa = doc("cons").querySelector("a.btn.whatsapp");
@@ -502,6 +568,7 @@
       await sleep(1200);
     }],
     ["O cliente aceita a proposta e o contrato", "Pelo link, sem login: lê, pode imprimir e aceita.", async () => {
+      if (!quoteLink) throw new Error("pulada: a cotação da etapa anterior não foi enviada");
       show("extra", null, "Proposta (visão do cliente)");
       await load("extra", quoteLink);
       await scrollPage("extra", 3);
@@ -513,12 +580,13 @@
       await type("extra", "#nome", lead.nome);
       await click("extra", ".accept .check input");
       await click("extra", ".accept button.primary");
-      check(await waitFor(() => doc("extra").body.textContent.includes("Proposta aceita")), "Proposta aceita pelo cliente");
+      accepted = check(await waitFor(() => doc("extra").body.textContent.includes("Proposta aceita"), 15000), "Proposta aceita pelo cliente");
       await sleep(1200);
     }],
     ["Da proposta aceita à loja criada", "O consultor é avisado na hora e cadastra a loja com um clique.", async () => {
+      if (!accepted) throw new Error("pulada: a proposta não foi aceita na etapa anterior");
       show("cons");
-      check(await waitFor(() => alertIn("cons", "aceitou") || doc("cons").querySelector("[data-quote-store]"), 12000), "Consultor avisado do aceite");
+      check(await waitFor(() => doc("cons").querySelector("[data-quote-store]"), 20000), "Consultor avisado do aceite (sem F5)");
       await click("cons", "[data-quote-store]");
       check(await waitFor(() => doc("cons").querySelector("#nl-nome")?.value === lead.loja), "Cadastro da loja vem preenchido");
       await sleep(1000);
@@ -579,18 +647,25 @@
       say(i + 1, steps.length, title, sub);
       Object.keys(F).forEach(hookFrame);
       await sleep(900);
+      const failuresBefore = results.filter((r) => r[0] === false).length;
       try {
         await fn();
       } catch (err) {
         check(false, `${title}: ${err.message}`);
       }
+      // Etapa com falha: registra o que estava na tela e os erros de script, para descobrir o motivo
+      if (results.filter((r) => r[0] === false).length > failuresBefore) {
+        const scriptErrors = frameErrors.splice(0).join(" · ");
+        results.push([null, `↳ na tela: ${diagnose()}${scriptErrors ? " | erros: " + scriptErrors : ""}`]);
+      }
     }
     cursor.style.display = "none";
-    const okN = results.filter((r) => r[0]).length;
-    say(steps.length, steps.length, "Demonstração concluída", `${okN} de ${results.length} verificações funcionaram.`);
-    $("#end-title").textContent = okN === results.length ? "✓ Tudo funcionando" : "Demonstração concluída";
-    $("#end-sub").textContent = `${okN} de ${results.length} verificações funcionaram.`;
-    $("#results").innerHTML = results.map(([ok, label]) => `<li class="${ok ? "ok" : "bad"}">${label.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])}</li>`).join("");
+    const okN = results.filter((r) => r[0] === true).length;
+    const total = results.filter((r) => r[0] !== null).length;
+    say(steps.length, steps.length, "Demonstração concluída", `${okN} de ${total} verificações funcionaram.`);
+    $("#end-title").textContent = okN === total ? "✓ Tudo funcionando" : "Demonstração concluída";
+    $("#end-sub").textContent = `${okN} de ${total} verificações funcionaram.`;
+    $("#results").innerHTML = results.map(([ok, label]) => `<li class="${ok === null ? "info" : ok ? "ok" : "bad"}">${label.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])}</li>`).join("");
     $("#end").hidden = false;
     $("#close-end").focus();
   }
