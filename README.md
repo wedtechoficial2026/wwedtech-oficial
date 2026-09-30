@@ -139,6 +139,7 @@ Os botões "Exemplo" da tela de login preenchem os dados.
 | Vitrine Amazon | http://localhost:8012/ |
 | Vitrine Shopee | http://localhost:8013/ |
 | Banco de dados (só no próprio computador) | http://localhost:8000/banco.php |
+| **Demonstração automática** (para gravar o vídeo) | http://localhost:8000/demonstracao/ |
 
 ---
 
@@ -244,4 +245,4 @@ Pontas conhecidas:
 ## Documentos
 
 - [`docs/VERIFICACAO.md`](docs/VERIFICACAO.md): lista de tudo o que conferir para garantir que o sistema está rodando.
-- [`docs/ROTEIRO-VIDEO.md`](docs/ROTEIRO-VIDEO.md): roteiro para gravar o vídeo de demonstração.
+- [`docs/ROTEIRO-VIDEO.md`](docs/ROTEIRO-VIDEO.md): como gravar o vídeo. O jeito mais fácil é a **demonstração automática** (`demonstracao/`), que usa o sistema sozinha, com legenda, e testa 33 pontos em 17 etapas. Ela cria dados de verdade, então faça uma cópia do `database.sqlite` antes.

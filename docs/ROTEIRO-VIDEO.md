@@ -1,5 +1,40 @@
 # Roteiro do vídeo de demonstração — WedTech
 
+## Jeito mais fácil: demonstração automática
+
+O sistema tem uma página que **testa todas as funcionalidades sozinha**, na tela, para você só gravar:
+- ela clica e digita com um cursor visível;
+- explica cada etapa numa legenda grande;
+- marca ✓ em cada verificação que funciona.
+
+São 17 etapas e 33 verificações:
+
+| Área | O que a demonstração faz |
+|---|---|
+| Site | pedido de proposta com os dados da loja |
+| Login | entra com as duas contas no mesmo navegador |
+| Painel da loja | indicadores, ajuste de estoque, fornecedores, caixa com Pix, pedidos, notificações, menu do perfil e telas de gestão |
+| Mercado Livre | venda na vitrine caindo no painel ao vivo, com o estoque baixando sozinho |
+| Suporte | chamado respondido em tempo real |
+| Área do consultor | cotação por marketplace, proposta e contrato aceitos pelo cliente, loja criada, mudança de plano chegando ao lojista e registro de ações |
+
+1. Rode o `iniciar-tudo.bat`.
+2. **Recomendado:** faça uma cópia do `database.sqlite`, porque a demonstração cria pedidos, chamado, cotação e uma loja.
+3. Abra **http://localhost:8000/demonstracao/** e aperte **F11** (tela cheia).
+4. Comece a gravar (**Windows + Alt + R**, Clipchamp ou OBS).
+5. Escolha a velocidade:
+   - **Devagar** se for narrar por cima (cerca de 12 minutos);
+   - **Normal** (cerca de 8 minutos).
+
+   Clique em **Começar**.
+6. No fim aparece o resumo com todas as verificações. Pare a gravação.
+
+Dá para rodar quantas vezes quiser. O contrato da loja de exemplo volta sozinho ao que era.
+
+---
+
+## Jeito manual: você mesmo conduz
+
 Vídeo de **8 a 10 minutos** mostrando o sistema funcionando de ponta a ponta. São 7 cenas; cada uma diz **o que fazer** na tela e **o que falar** (sugestão, adapte ao seu jeito).
 
 ---

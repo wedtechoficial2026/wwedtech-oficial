@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WedTech · Demonstração automática</title>
+<link rel="icon" href="../frontend/img/modulos/favicon-wedtech.png" type="image/png">
+<!--
+  Demonstração automática para gravar o vídeo: usa o sistema de verdade (site, painel da loja,
+  vitrine do Mercado Livre e área do consultor) clicando e digitando sozinha, com uma legenda
+  explicando cada etapa e um ✓ para cada verificação. Abra em http://localhost:8000/demonstracao/
+  com o iniciar-tudo.bat rodando. ATENÇÃO: cria dados de verdade (pedidos, chamado, cotação, loja).
+-->
+<style>
+  :root { --bg: #0b1220; --bar: #0e1624; --txt: #eef2f8; --muted: #93a4bf; --acc: #7fb2ff; --ok: #34d399; --bad: #f87171; --amber: #f5b942; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--txt); font: 16px/1.4 "Segoe UI", system-ui, sans-serif; }
+  .caption { position: fixed; inset: 0 0 auto 0; height: 112px; display: flex; align-items: center; gap: 24px; padding: 0 28px; background: var(--bar); border-bottom: 1px solid #1d2b44; }
+  .caption .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; white-space: nowrap; }
+  .caption .logo b { color: var(--acc); }
+  .caption .step { flex: 1; min-width: 0; }
+  .caption small { display: block; color: var(--amber); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .caption h1 { margin: 2px 0 0; font-size: 30px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .caption p { margin: 2px 0 0; color: #c9d4e5; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score { display: grid; justify-items: end; gap: 4px; white-space: nowrap; }
+  .score .counts { font-size: 22px; font-weight: 800; }
+  .score .counts .ok { color: var(--ok); }
+  .score .counts .bad { color: var(--bad); margin-left: 10px; }
+  .score .last { max-width: 420px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 15px; }
+  .progress { position: fixed; top: 112px; left: 0; height: 4px; width: 0; background: var(--acc); transition: width 0.6s; z-index: 5; }
+  .stage { position: fixed; inset: 116px 0 0 0; display: flex; gap: 10px; padding: 10px; }
+  .stage iframe { display: none; flex: 1; min-width: 0; height: 100%; border: 0; border-radius: 12px; background: #0e1624; box-shadow: 0 0 0 1px #1d2b44; }
+  .stage iframe.show { display: block; }
+  .label { position: fixed; bottom: 22px; z-index: 6; padding: 6px 14px; box-shadow: 0 0 0 1px #2a3a55; border-radius: 999px; background: rgba(14, 22, 36, 0.85); color: #fff; font-size: 14px; font-weight: 700; pointer-events: none; display: none; }
+  #cursor { position: fixed; left: 50%; top: 50%; z-index: 50; width: 34px; height: 34px; pointer-events: none; transition: left 0.7s cubic-bezier(.4,.1,.2,1), top 0.7s cubic-bezier(.4,.1,.2,1); filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); display: none; }
+  #cursor.click::after { content: ""; position: absolute; left: -14px; top: -14px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--amber); animation: ping 0.45s ease-out; }
+  @keyframes ping { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+  .toast { position: fixed; left: 50%; bottom: 70px; z-index: 40; transform: translateX(-50%); padding: 12px 22px; border-radius: 999px; background: rgba(6, 12, 22, 0.92); font-size: 20px; font-weight: 700; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .toast.ok { box-shadow: 0 0 0 2px var(--ok); }
+  .toast.bad { box-shadow: 0 0 0 2px var(--bad); }
+  .overlay { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; background: rgba(6, 10, 18, 0.94); }
+  .overlay[hidden] { display: none; }
+  .card { width: min(760px, 100%); max-height: calc(100vh - 48px); overflow: auto; padding: 36px; border-radius: 18px; background: var(--bar); box-shadow: 0 0 0 1px #1d2b44; }
+  .card h2 { margin: 0 0 8px; font-size: 34px; }
+  .card p, .card li { color: #c9d4e5; font-size: 17px; }
+  .card .warn { padding: 12px 14px; border-radius: 10px; background: rgba(245, 185, 66, 0.12); color: #ffd98a; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 20px; }
+  .row label { color: var(--muted); }
+  select, button { font: inherit; }
+  select { padding: 10px 12px; border-radius: 10px; border: 1px solid #2a3a55; background: #0b1220; color: var(--txt); }
+  .btn { padding: 12px 22px; border: 0; border-radius: 999px; background: #2563c9; color: #fff; font-weight: 700; cursor: pointer; font-size: 18px; }
+  .btn:focus-visible, select:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .countdown { font-size: 160px; font-weight: 800; color: var(--amber); }
+  .results { margin: 16px 0 0; padding: 0; list-style: none; columns: 2; column-gap: 24px; }
+  .results li { break-inside: avoid; margin: 3px 0; font-size: 15px; }
+  .results .ok::before { content: "✓ "; color: var(--ok); font-weight: 800; }
+  .results .bad::before { content: "✗ "; color: var(--bad); font-weight: 800; }
+  @media (max-width: 900px) { .results { columns: 1; } .caption h1 { font-size: 22px; } .caption p { font-size: 15px; } }
+</style>
+</head>
+<body>
+<header class="caption">
+  <div class="logo"><img src="../frontend/img/modulos/wedtech-symbol.png" alt="" width="36" height="36"><span><b>Wed</b>Tech</span></div>
+  <div class="step"><small id="step-n">Demonstração</small><h1 id="step-title">Tudo pronto para começar</h1><p id="step-sub">O sistema de verdade, funcionando sozinho.</p></div>
+  <div class="score"><div class="counts"><span class="ok" id="n-ok">✓ 0</span><span class="bad" id="n-bad">✗ 0</span></div><div class="last" id="last">—</div></div>
+</header>
+<div class="progress" id="progress"></div>
+<main class="stage">
+  <iframe id="f-loja" title="Painel da loja"></iframe>
+  <iframe id="f-cons" title="Área do consultor"></iframe>
+  <iframe id="f-extra" title="Site, vitrine e proposta"></iframe>
+</main>
+<span class="label" id="label-a"></span><span class="label" id="label-b"></span>
+<svg id="cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.5 1.2 3.8 7.3-2.9 1.5-3.8-7.4L4 20z" fill="#fff" stroke="#0e1624" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<section class="overlay" id="start">
+  <div class="card">
+    <h2>Demonstração automática da WedTech</h2>
+    <p>Esta página usa o sistema de verdade, sozinha: abre o site, entra como lojista e como consultor, vende no caixa e no Mercado Livre, abre um chamado, faz uma cotação com contrato, aceita como cliente e muda o plano de uma loja. Cada etapa aparece explicada no topo, com ✓ quando funciona.</p>
+    <p class="warn">⚠ Ela cria dados de verdade no sistema (pedidos, chamado, cotação e uma loja nova). Se quiser voltar ao estado de antes, faça uma cópia do <b>database.sqlite</b> antes de começar.</p>
+    <ol>
+      <li>Deixe o <b>iniciar-tudo.bat</b> rodando.</li>
+      <li>Aperte <b>F11</b> para tela cheia.</li>
+      <li>Comece a gravar a tela (Clipchamp, OBS ou <b>Windows + Alt + R</b>).</li>
+      <li>Clique em <b>Começar</b>: há uma contagem de 3 segundos.</li>
+    </ol>
+    <div class="row">
+      <label for="speed">Velocidade</label>
+      <select id="speed"><option value="1.5">Devagar (para narrar)</option><option value="1" selected>Normal</option><option value="0.6">Rápida</option></select>
+      <label for="sound"><input type="checkbox" id="sound" checked> Som dos avisos</label>
+      <button class="btn" id="go">▶ Começar</button>
+    </div>
+  </div>
+</section>
+<section class="overlay" id="count" hidden><div class="countdown" id="count-n">3</div></section>
+<section class="overlay" id="end" hidden>
+  <div class="card">
+    <h2 id="end-title">Demonstração concluída</h2>
+    <p id="end-sub"></p>
+    <ul class="results" id="results"></ul>
+    <div class="row"><button class="btn" id="close-end">Ver o sistema</button></div>
+  </div>
+</section>
+
+<script>
+"use strict";
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const F = { loja: $("#f-loja"), cons: $("#f-cons"), extra: $("#f-extra") };
+  const names = { loja: "Painel da loja (lojista)", cons: "Área do consultor", extra: "" };
+  const run = String(Date.now()).slice(-5);
+  const lead = { loja: "Moda da Ana", nome: "Ana Souza", email: `ana.${run}@modadaana.com.br`, whats: "11 98888-7777", cnpj: "11222333000181", cidade: "São Paulo/SP" };
+  const results = [];
+  let speed = 1;
+  let soundOn = true;
+
+  // ---------------------------------------------------------------------------
+  // Tempo, espera e legenda
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms * speed));
+  const raw = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function waitFor(fn, ms = 12000) {
+    const t = Date.now();
+    while (Date.now() - t < ms) {
+      try {
+        const v = fn();
+        if (v) return v;
+      } catch {}
+      await raw(200);
+    }
+    return null;
+  }
+  function say(n, total, title, sub) {
+    $("#step-n").textContent = `Etapa ${n} de ${total}`;
+    $("#step-title").textContent = title;
+    $("#step-sub").textContent = sub;
+    $("#progress").style.width = `${(n / total) * 100}%`;
+  }
+  function toast(text, kind) {
+    const el = $("#toast");
+    el.textContent = text;
+    el.className = `toast show ${kind || ""}`;
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => (el.className = "toast"), 2600);
+  }
+  function check(cond, label) {
+    results.push([!!cond, label]);
+    const okN = results.filter((r) => r[0]).length;
+    $("#n-ok").textContent = `✓ ${okN}`;
+    $("#n-bad").textContent = `✗ ${results.length - okN}`;
+    $("#last").textContent = (cond ? "✓ " : "✗ ") + label;
+    toast((cond ? "✓ " : "✗ ") + label, cond ? "ok" : "bad");
+    return !!cond;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Janelas: uma sozinha ou duas lado a lado, com o nome de cada uma
+  function show(a, b, labelA, labelB) {
+    for (const [key, el] of Object.entries(F)) {
+      el.classList.toggle("show", key === a || key === b);
+      el.style.order = key === a ? 1 : key === b ? 2 : 3;
+    }
+    const la = $("#label-a");
+    const lb = $("#label-b");
+    la.textContent = labelA ?? names[a];
+    lb.textContent = labelB ?? (b ? names[b] : "");
+    la.style.display = la.textContent ? "block" : "none";
+    lb.style.display = b && lb.textContent ? "block" : "none";
+    requestAnimationFrame(() => {
+      const ra = F[a].getBoundingClientRect();
+      la.style.left = ra.left + 14 + "px";
+      if (b) lb.style.left = F[b].getBoundingClientRect().left + 14 + "px";
+    });
+  }
+  const win = (f) => F[f].contentWindow;
+  const doc = (f) => F[f].contentDocument;
+  function load(f, url) {
+    return new Promise((resolve) => {
+      F[f].onload = () => {
+        hookFrame(f);
+        resolve();
+      };
+      F[f].src = url;
+    });
+  }
+  async function go(f, hash) {
+    win(f).location.hash = hash;
+    await sleep(900);
+  }
+  // O som dos avisos toca pela página principal (o navegador só libera som depois de um clique nela)
+  let audio = null;
+  function chime() {
+    if (!soundOn) return;
+    try {
+      audio ||= new AudioContext();
+      [880, 1318.5].forEach((freq, i) => {
+        const o = audio.createOscillator();
+        const g = audio.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        const t = audio.currentTime + i * 0.14;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+        o.connect(g).connect(audio.destination);
+        o.start(t);
+        o.stop(t + 0.4);
+      });
+    } catch {}
+  }
+  function hookFrame(f) {
+    try {
+      const w = win(f);
+      w.confirm = () => true;
+      if (w.WedTechAlerts) w.WedTechAlerts.chime = chime;
+    } catch {}
+  }
+
+  // ---------------------------------------------------------------------------
+  // Cursor, clique e digitação visíveis
+  const cursor = $("#cursor");
+  async function find(f, sel, text, ms = 12000) {
+    const el = await waitFor(() => {
+      const list = [...doc(f).querySelectorAll(sel)];
+      return text ? list.find((e) => e.textContent.includes(text)) : list[0];
+    }, ms);
+    if (!el) throw new Error(`não encontrei ${sel}${text ? " com “" + text + "”" : ""}`);
+    return el;
+  }
+  async function point(f, el) {
+    cursor.style.display = "block";
+    el.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+    await sleep(550);
+    const fr = F[f].getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    cursor.style.left = fr.left + r.left + Math.min(r.width / 2, 80) + "px";
+    cursor.style.top = fr.top + r.top + Math.min(r.height / 2, 24) + "px";
+    await sleep(750);
+  }
+  async function click(f, target, text) {
+    const el = typeof target === "string" ? await find(f, target, text) : target;
+    await point(f, el);
+    cursor.classList.remove("click");
+    void cursor.offsetWidth;
+    cursor.classList.add("click");
+    await sleep(180);
+    el.click();
+    await sleep(800);
+    return el;
+  }
+  async function type(f, target, text) {
+    const el = typeof target === "string" ? await find(f, target) : target;
+    await point(f, el);
+    el.focus();
+    el.value = "";
+    const Ev = win(f).Event;
+    for (const ch of String(text)) {
+      el.value += ch;
+      el.dispatchEvent(new Ev("input", { bubbles: true }));
+      await raw(Math.max(15, 45 * speed));
+    }
+    el.dispatchEvent(new Ev("change", { bubbles: true }));
+    await sleep(300);
+    return el;
+  }
+  async function choose(f, target, value) {
+    const el = typeof target === "string" ? await find(f, target) : target;
+    await point(f, el);
+    el.value = value;
+    const Ev = win(f).Event;
+    el.dispatchEvent(new Ev("input", { bubbles: true }));
+    el.dispatchEvent(new Ev("change", { bubbles: true }));
+    await sleep(700);
+    return el;
+  }
+  async function scrollPage(f, steps = 3) {
+    const w = win(f);
+    for (let i = 0; i < steps; i++) {
+      w.scrollBy({ top: w.innerHeight * 0.6, behavior: "smooth" });
+      await sleep(1100);
+    }
+    w.scrollTo({ top: 0, behavior: "smooth" });
+    await sleep(700);
+  }
+  // Painel da loja: primeiro acesso (tipo de loja) e tour de boas-vindas não atrapalham
+  async function readyPanel() {
+    await waitFor(() => doc("loja").querySelector("#app")?.children.length);
+    const setup = doc("loja").querySelector('[data-setup="eletronicos"]');
+    if (setup) await click("loja", setup);
+    const skip = await waitFor(() => doc("loja").querySelector('[data-action="tour-skip"]'), 2500);
+    if (skip) await click("loja", skip);
+    return !!(await waitFor(() => doc("loja").querySelector(".sidebar")));
+  }
+  const alertIn = (f, text) => [...doc(f).querySelectorAll("#wedtech-alerts .wt-alert")].find((a) => a.textContent.includes(text));
+  const panelState = (expr) => win("loja").eval(expr);
+
+  // ---------------------------------------------------------------------------
+  // Roteiro
+  let storeId = null;
+  let quoteLink = "";
+  let ticketId = null;
+  const steps = [
+    ["O site da WedTech", "O cliente conhece a WedTech e pede uma proposta com os dados da loja.", async () => {
+      show("extra", null, "Site (página inicial)");
+      await load("extra", "../index.html");
+      await sleep(900);
+      await scrollPage("extra", 2);
+      await click("extra", "[data-contratar]");
+      check(await waitFor(() => doc("extra").querySelector("#contratar-modal")?.open), "Formulário de proposta abre");
+      await type("extra", "#f-loja", lead.loja);
+      await choose("extra", "#f-ramo", "moda");
+      await type("extra", "#f-cnpj", lead.cnpj);
+      await type("extra", "#f-cidade", lead.cidade);
+      await choose("extra", "#f-produtos", "200");
+      await click("extra", 'input[name="canal"][value="Mercado Livre"]');
+      await click("extra", 'input[name="canal"][value="Shopee"]');
+      await type("extra", "#f-nome", lead.nome);
+      await type("extra", "#f-email", lead.email);
+      await type("extra", "#f-whats", lead.whats);
+      await type("extra", "#f-obs", "Quero juntar o estoque da loja com o Mercado Livre.");
+      await click("extra", '#contratar-form button[type="submit"]');
+      check(await waitFor(() => !doc("extra").querySelector(".modal-success").hidden), "Pedido de proposta enviado");
+      await sleep(1500);
+    }],
+    ["Entrar como lojista", "Botão de exemplo na tela de login: abre o painel da loja.", async () => {
+      show("loja", null, "Login");
+      await load("loja", "../login.php");
+      await click("loja", ".btn-exemplo", "vendedor");
+      await click("loja", ".btn-submit");
+      await waitFor(() => win("loja").location.pathname.endsWith("/modulos/index.php"));
+      hookFrame("loja");
+      check(await readyPanel(), "Painel da loja aberto");
+    }],
+    ["Entrar como consultor no mesmo navegador", "As duas contas funcionam juntas, lado a lado.", async () => {
+      show("cons", null, "Login");
+      await load("cons", "../login.php");
+      await sleep(800);
+      await click("cons", ".btn-exemplo", "adm");
+      await click("cons", ".btn-submit");
+      await waitFor(() => win("cons").location.pathname.endsWith("/consultor/index.php"));
+      hookFrame("cons");
+      check(await waitFor(() => doc("cons").querySelector(".big-kpi")), "Área do consultor aberta");
+      const lojas = await (await fetch("../api/consultor.php?acao=lojas")).json();
+      storeId = (lojas.dados || []).find((s) => s.dono_email === "admin@wedtech.com")?.id || null;
+      show("loja", "cons");
+      await sleep(1500);
+      check(!panelState("window.WEDTECH_READONLY") && panelState("state.store.name"), "Lojista continua conectado ao lado");
+    }],
+    ["Início do painel", "Indicadores do dia; cada um leva direto para resolver.", async () => {
+      show("loja");
+      await go("loja", "inicio");
+      await scrollPage("loja", 1);
+      const kpi = await find("loja", "button.big-kpi, [data-nav^='estoque']");
+      await point("loja", kpi);
+      await click("loja", "[data-nav^='estoque']");
+      check(win("loja").location.hash.startsWith("#estoque"), "Indicador leva ao estoque filtrado");
+    }],
+    ["Estoque: ajuste com motivo", "Contagem da prateleira corrigida e registrada.", async () => {
+      await go("loja", "estoque");
+      // A etapa anterior deixou o estoque filtrado: volta para todos os produtos
+      const all = doc("loja").querySelector('[data-estoque-filter="todos"]');
+      if (all) await click("loja", all);
+      // Um produto sem variação (tamanho/cor) e uma contagem diferente da atual
+      const pid = panelState(`(state.products.find((p) => !p.variants?.length && document.querySelector('[data-adjust="' + p.id + '"]')) || {}).id`);
+      await click("loja", pid ? `[data-adjust="${pid}"]` : '[data-adjust]:not([data-adjust=""])');
+      await find("loja", "#adjust-form");
+      // O motivo primeiro: trocar a seleção redesenha o formulário, e a quantidade vem por último
+      const reason = await find("loja", "#adj-reason");
+      await choose("loja", reason, reason.options[0].value);
+      const loc = (await find("loja", "#adj-location")).value;
+      const current = Number(panelState(`(state.products.find(p => p.id === ${JSON.stringify(pid)})?.stock || {})[${JSON.stringify(loc)}] || 0`));
+      await type("loja", "#adj-counted", String(current + 2));
+      await click("loja", '#adjust-form button.primary, #adjust-form button[type="submit"]');
+      let message = "";
+      const saved = await waitFor(() => {
+        message = doc("loja").querySelector("#toast")?.textContent || message;
+        return !doc("loja").querySelector("#adjust-form");
+      });
+      check(saved, saved ? "Ajuste de estoque salvo" : "Ajuste de estoque: " + (message || "não salvou"));
+      if (!saved) await click("loja", '[data-action="close-drawer"]');
+    }],
+    ["Fornecedores e compras", "Ficha do fornecedor e pedido de reposição.", async () => {
+      await go("loja", "compras");
+      await click("loja", "[data-supplier]");
+      check(await waitFor(() => doc("loja").querySelector("#sup-name")), "Ficha do fornecedor abre");
+      await sleep(1200);
+      await click("loja", '[data-action="close-drawer"]');
+      await scrollPage("loja", 1);
+    }],
+    ["Caixa (PDV)", "Abre o caixa, bipa um produto e recebe no Pix.", async () => {
+      await go("loja", "balcao");
+      const openForm = doc("loja").querySelector("#register-open-form");
+      if (openForm) {
+        await type("loja", "#register-float", "100");
+        await click("loja", "#register-open-form button");
+      }
+      check(await waitFor(() => doc("loja").querySelector("#balcao-code")), "Caixa aberto");
+      const sku = panelState("(state.products.find(p => !p.variants?.length && p.sku && W.stockOf(state, p).disponivel >= 3) || {}).sku");
+      const before = panelState("state.orders.length");
+      await type("loja", "#balcao-code", sku);
+      await click("loja", '#balcao-form button[type="submit"], #balcao-form button.primary');
+      check(await waitFor(() => panelState("ui.cart.length") > 0), "Produto no carrinho pelo código");
+      await click("loja", '[data-action="start-payment"]');
+      await click("loja", '[data-pay="pix"]');
+      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Venda paga no Pix e registrada");
+      await sleep(1500);
+    }],
+    ["Pedidos de todos os canais", "Filtro por canal e por loja.", async () => {
+      await go("loja", "pedidos");
+      await choose("loja", "#pedidos-channel", "ml");
+      await sleep(800);
+      check(true, "Filtro por canal aplicado");
+      const clear = doc("loja").querySelector('[data-action="clear-order-filters"]');
+      if (clear) await click("loja", clear);
+      await go("loja", "retiradas");
+      await go("loja", "devolucoes");
+      check(doc("loja").querySelector("#main-content h1"), "Retiradas e devoluções em telas próprias");
+    }],
+    ["Venda no Mercado Livre em tempo real", "Compra na vitrine: o pedido cai no painel sozinho, sem F5.", async () => {
+      await go("loja", "pedidos");
+      show("extra", "loja", "Vitrine Mercado Livre (cliente)", "Painel da loja");
+      await load("extra", "../marketplaces/mercado-livre/index.php");
+      const card = await waitFor(() => [...doc("extra").querySelectorAll(".product-card")].find((c) => !c.querySelector(".variant-select") && parseInt(c.querySelector(".product-stock")?.textContent) >= 2));
+      if (!card) throw new Error("vitrine sem produto disponível (o Mercado Livre está conectado?)");
+      const name = card.querySelector("h3").textContent;
+      const stockBefore = parseInt(card.querySelector(".product-stock").textContent);
+      const before = panelState("state.orders.length");
+      await click("extra", card.querySelector("[data-add-product]"));
+      await type("extra", 'input[name="name"]', "Carlos Cliente");
+      await type("extra", 'input[name="phone"]', "11 97777-1234");
+      await type("extra", '[name="address"]', "Rua das Palmeiras, 45 - São Paulo");
+      for (const box of doc("extra").querySelectorAll('#checkout-form input[type="checkbox"]')) if (!box.checked) await click("extra", box);
+      await click("extra", "#checkout-button");
+      check(await waitFor(() => /Pedido/.test(doc("extra").querySelector("#checkout-message")?.textContent)), "Compra confirmada na vitrine");
+      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Pedido apareceu no painel sem F5");
+      check(await waitFor(() => doc("loja").querySelector("#wedtech-alerts .wt-alert"), 8000), "Janela flutuante com o novo pedido");
+      const after = await waitFor(() => {
+        const c = [...doc("extra").querySelectorAll(".product-card")].find((x) => x.querySelector("h3").textContent === name);
+        const n = c && parseInt(c.querySelector(".product-stock").textContent);
+        return n < stockBefore ? n : null;
+      }, 12000);
+      check(after !== null, `Estoque da vitrine caiu sozinho (${stockBefore} → ${after})`);
+      await sleep(1500);
+    }],
+    ["Notificações e menu do perfil", "Avisos num lugar só; menu da conta no topo.", async () => {
+      show("loja");
+      await go("loja", "notificacoes");
+      await sleep(800);
+      await click("loja", ".avatar-btn");
+      check(await waitFor(() => doc("loja").querySelector(".profile-panel")), "Menu do perfil abre");
+      await sleep(1400);
+      await click("loja", '.profile-panel [data-nav="config"]');
+      check(win("loja").location.hash === "#config", "Menu leva às configurações");
+    }],
+    ["Canais e gestão", "Taxas de cada marketplace, financeiro, datas, anúncios e IA.", async () => {
+      for (const page of ["canais", "financeiro", "sazonalidade", "ads", "ai"]) {
+        await go("loja", page);
+        await scrollPage("loja", 1);
+      }
+      check(doc("loja").querySelector("#main-content h1"), "Telas de gestão abrem");
+    }],
+    ["Suporte em chat, ao vivo", "O lojista abre um chamado; o consultor responde; aparece na hora.", async () => {
+      show("loja", "cons");
+      await go("cons", "inicio");
+      await go("loja", "suporte");
+      await click("loja", '[data-action="support-new"]');
+      await type("loja", "#sup-subject", "Como imprimo a etiqueta de envio?");
+      await type("loja", "#sup-message", "Vendi no Mercado Livre e não achei onde imprimir a etiqueta.");
+      await click("loja", '#support-open-form button.primary');
+      ticketId = await waitFor(() => panelState("ui.supportTicket"));
+      check(ticketId, `Chamado #${ticketId} aberto`);
+      const alert = await waitFor(() => alertIn("cons", "#" + ticketId), 12000);
+      check(alert, "Consultor recebe a janela com o chamado");
+      if (alert) await click("cons", alert.querySelector(".wt-alert-body"));
+      else await go("cons", "chamado/" + ticketId);
+      await type("cons", "#tk-texto", "Olá! Em Pedidos, abra o pedido e clique em Etiqueta. Já deixei separado para você.");
+      await click("cons", '#ticket-form button.primary');
+      check(await waitFor(() => doc("loja").querySelector(`[data-thread="${ticketId}"]`)?.textContent.includes("Etiqueta"), 12000), "Resposta aparece na hora para o lojista");
+      await sleep(1500);
+    }],
+    ["Cotação a partir do contato do site", "Preço por marketplace e por produto, calculado na hora.", async () => {
+      show("cons");
+      await go("cons", "contatos");
+      const row = await find("cons", "tbody tr", lead.email);
+      await point("cons", row);
+      await click("cons", row.querySelector("[data-lead-quote]"));
+      check(await waitFor(() => doc("cons").querySelector("#qt-cnpj")?.value.includes("11.222.333")), "Cotação vem preenchida com os dados da loja");
+      await sleep(900);
+      await click("cons", '[data-quote-channel="shein"]');
+      await type("cons", "#qt-produtos", "100");
+      check(await waitFor(() => doc("cons").querySelector("#quote-summary")?.textContent.includes("Shein: cadastro de 100 produtos")), "Preço recalculado: cadastro por produto em cada canal");
+      await point("cons", await find("cons", "#quote-summary"));
+      await sleep(1500);
+      await click("cons", "[data-quote-send]");
+      const link = await waitFor(() => doc("cons").querySelector("#qt-link")?.value);
+      check(link, "Proposta enviada com link próprio");
+      quoteLink = link;
+      const wa = doc("cons").querySelector("a.btn.whatsapp");
+      if (wa) await point("cons", wa);
+      check(wa && wa.href.startsWith("https://wa.me/5511988887777"), "WhatsApp direto no número do cliente");
+      await sleep(1200);
+    }],
+    ["O cliente aceita a proposta e o contrato", "Pelo link, sem login: lê, pode imprimir e aceita.", async () => {
+      show("extra", null, "Proposta (visão do cliente)");
+      await load("extra", quoteLink);
+      await scrollPage("extra", 3);
+      await load("extra", quoteLink.replace("proposta.php", "contrato.php"));
+      show("extra", null, "Contrato (visão do cliente)");
+      await scrollPage("extra", 4);
+      await load("extra", quoteLink);
+      show("extra", null, "Proposta (visão do cliente)");
+      await type("extra", "#nome", lead.nome);
+      await click("extra", ".accept .check input");
+      await click("extra", ".accept button.primary");
+      check(await waitFor(() => doc("extra").body.textContent.includes("Proposta aceita")), "Proposta aceita pelo cliente");
+      await sleep(1200);
+    }],
+    ["Da proposta aceita à loja criada", "O consultor é avisado na hora e cadastra a loja com um clique.", async () => {
+      show("cons");
+      check(await waitFor(() => alertIn("cons", "aceitou") || doc("cons").querySelector("[data-quote-store]"), 12000), "Consultor avisado do aceite");
+      await click("cons", "[data-quote-store]");
+      check(await waitFor(() => doc("cons").querySelector("#nl-nome")?.value === lead.loja), "Cadastro da loja vem preenchido");
+      await sleep(1000);
+      await click("cons", "#new-store-form button.primary");
+      check(await waitFor(() => doc("cons").querySelector(".credential-card")), "Loja criada com senha provisória");
+      await sleep(2200);
+      await click("cons", "[data-close-credential]");
+      await sleep(1500);
+    }],
+    ["Contrato e liberações da loja", "O consultor libera um recurso; o painel da loja muda na hora.", async () => {
+      if (!storeId) throw new Error("não achei a loja de exemplo");
+      show("cons", "loja");
+      await go("loja", "inicio");
+      // Guarda o contrato atual para devolver a loja de exemplo exatamente como estava
+      const original = (await (await fetch(`../api/consultor.php?acao=loja&id=${storeId}`)).json()).dados;
+      await go("cons", "loja/" + storeId);
+      await find("cons", ".plan-card");
+      // Libera um recurso que está bloqueado; se todos já estão liberados, aumenta as lojas físicas
+      const extra = doc("cons").querySelector('[data-module-set$=":extra"]:not(.active)');
+      await click("cons", extra || '[data-limit-step="maxShops:1"]');
+      await point("cons", await find("cons", ".change-list"));
+      await sleep(1200);
+      await click("cons", "[data-contract-save]");
+      check(await waitFor(() => alertIn("loja", "plano foi atualizado"), 15000), "Lojista recebe o aviso da mudança de plano");
+      await sleep(2500);
+      if (original) {
+        await fetch(`../api/consultor.php?acao=atualizar_loja&id=${storeId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plano: original.plano, situacao: original.situacao, valor_mensal: original.valor_mensal, teste_ate: original.teste_ate || "", limites: original.limites, modulos: original.modulos, observacoes: original.observacoes || "" }),
+        });
+      }
+    }],
+    ["Gestão do consultor", "Tabela de preços por marketplace e registro de tudo o que foi feito.", async () => {
+      show("cons");
+      await go("cons", "precos");
+      await scrollPage("cons", 2);
+      await go("cons", "historico");
+      check(await waitFor(() => doc("cons").body.textContent.includes("Cotação aceita pelo cliente")), "Registro de ações mostra a cotação aceita");
+      await sleep(1500);
+    }],
+  ];
+
+  async function start(auto = false) {
+    speed = auto ? Number(new URLSearchParams(location.search).get("auto")) || 1 : Number($("#speed").value);
+    soundOn = !auto && $("#sound").checked;
+    chime();
+    $("#start").hidden = true;
+    if (!auto) {
+      $("#count").hidden = false;
+      for (const n of [3, 2, 1]) {
+        $("#count-n").textContent = n;
+        await raw(1000);
+      }
+      $("#count").hidden = true;
+    }
+    for (const [i, [title, sub, fn]] of steps.entries()) {
+      say(i + 1, steps.length, title, sub);
+      Object.keys(F).forEach(hookFrame);
+      await sleep(900);
+      try {
+        await fn();
+      } catch (err) {
+        check(false, `${title}: ${err.message}`);
+      }
+    }
+    cursor.style.display = "none";
+    const okN = results.filter((r) => r[0]).length;
+    say(steps.length, steps.length, "Demonstração concluída", `${okN} de ${results.length} verificações funcionaram.`);
+    $("#end-title").textContent = okN === results.length ? "✓ Tudo funcionando" : "Demonstração concluída";
+    $("#end-sub").textContent = `${okN} de ${results.length} verificações funcionaram.`;
+    $("#results").innerHTML = results.map(([ok, label]) => `<li class="${ok ? "ok" : "bad"}">${label.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])}</li>`).join("");
+    $("#end").hidden = false;
+    $("#close-end").focus();
+  }
+  $("#go").addEventListener("click", () => start());
+  // ?auto=<velocidade> começa sozinha, sem contagem e sem som (usado para testar a demonstração)
+  if (new URLSearchParams(location.search).has("auto")) start(true);
+  $("#close-end").addEventListener("click", () => ($("#end").hidden = true));
+  addEventListener("resize", () => {
+    const vis = Object.keys(F).filter((k) => F[k].classList.contains("show")).sort((a, b) => F[a].style.order - F[b].style.order);
+    if (vis.length) show(vis[0], vis[1], $("#label-a").textContent, $("#label-b").textContent);
+  });
+})();
+</script>
+</body>
+</html>
