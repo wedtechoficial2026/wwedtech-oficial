@@ -2,21 +2,27 @@
 
 ## Jeito mais fácil: demonstração automática
 
-O sistema tem uma página que **testa todas as funcionalidades sozinha**, na tela, para você só gravar:
+O sistema tem uma página que apresenta o **pitch da WedTech** com o sistema de verdade, funcionando sozinho na tela, para você só gravar:
 - ela clica e digita com um cursor visível;
-- explica cada etapa numa legenda grande;
+- explica cada cena numa legenda grande;
 - marca ✓ em cada verificação que funciona.
 
-São 17 etapas e 33 verificações:
+São 12 cenas e 30 verificações:
 
-| Área | O que a demonstração faz |
-|---|---|
-| Site | pedido de proposta com os dados da loja |
-| Login | entra com as duas contas no mesmo navegador |
-| Painel da loja | indicadores, ajuste de estoque, fornecedores, caixa com Pix, pedidos, notificações, menu do perfil e telas de gestão |
-| Mercado Livre | venda na vitrine caindo no painel ao vivo, com o estoque baixando sozinho |
-| Suporte | chamado respondido em tempo real |
-| Área do consultor | cotação por marketplace, proposta e contrato aceitos pelo cliente, loja criada, mudança de plano chegando ao lojista e registro de ações |
+| # | Cena | O que aparece |
+|---|---|---|
+| 1 | Contratação: pedido de proposta | O lojista pede proposta no site, com os dados da loja |
+| 2 | Contratação: cotação | O consultor monta a cotação (preço por marketplace e por produto) e envia |
+| 3 | Contratação: aceite | O cliente lê a proposta e o contrato, aceita, e a loja é criada |
+| 4 | Venda: compra no Mercado Livre | O cliente compra; o estoque cai na hora no Mercado Livre e na **Shopee**; o pedido sobe no painel com aviso |
+| 5 | Venda: separação e envio | Itens bipados, despacho com nota e etiqueta; o cliente vê "Enviado" |
+| 6 | Venda: retirada na loja | Compra no site próprio, QR de retirada, entrega no balcão |
+| 7 | Ruptura | A contagem mostra que um produto acabou; pedido ao fornecedor; mercadoria recebida |
+| 8 | Anúncio novo | A IA cria o anúncio, publica, e o produto aparece à venda no Mercado Livre |
+| 9 | Suporte | O lojista abre um chamado; a resposta do consultor aparece na hora |
+| 10 | Sazonalidade | A previsão de uma data forte e as compras preparadas pela IA |
+| 11 | Devolução | O cliente pede pelo marketplace; o produto é recebido e volta à venda |
+| 12 | Controle de estoque | Estoque por local e ajuste com motivo |
 
 1. Rode o `iniciar-tudo.bat`.
 2. **Recomendado:** faça uma cópia do `database.sqlite`, porque a demonstração cria pedidos, chamado, cotação e uma loja.

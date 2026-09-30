@@ -245,4 +245,4 @@ Pontas conhecidas:
 ## Documentos
 
 - [`docs/VERIFICACAO.md`](docs/VERIFICACAO.md): lista de tudo o que conferir para garantir que o sistema está rodando.
-- [`docs/ROTEIRO-VIDEO.md`](docs/ROTEIRO-VIDEO.md): como gravar o vídeo. O jeito mais fácil é a **demonstração automática** (`demonstracao/`), que usa o sistema sozinha, com legenda, e testa 33 pontos em 17 etapas. Ela cria dados de verdade, então faça uma cópia do `database.sqlite` antes.
+- [`docs/ROTEIRO-VIDEO.md`](docs/ROTEIRO-VIDEO.md): como gravar o vídeo. O jeito mais fácil é a **demonstração automática** (`demonstracao/`), que usa o sistema sozinha, com legenda, e apresenta o pitch em 12 cenas (contratação, venda completa, ruptura, anúncio, suporte, sazonalidade, devolução e estoque) com 30 verificações. Ela cria dados de verdade, então faça uma cópia do `database.sqlite` antes.

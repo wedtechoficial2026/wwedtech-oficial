@@ -79,8 +79,8 @@
 <section class="overlay" id="start">
   <div class="card">
     <h2>Demonstração automática da WedTech</h2>
-    <p>Esta página usa o sistema de verdade, sozinha: abre o site, entra como lojista e como consultor, vende no caixa e no Mercado Livre, abre um chamado, faz uma cotação com contrato, aceita como cliente e muda o plano de uma loja. Cada etapa aparece explicada no topo, com ✓ quando funciona.</p>
-    <p class="warn">⚠ Ela cria dados de verdade no sistema (pedidos, chamado, cotação e uma loja nova). Se quiser voltar ao estado de antes, faça uma cópia do <b>database.sqlite</b> antes de começar.</p>
+    <p>O pitch da WedTech com o sistema de verdade, funcionando sozinho, em 12 cenas: contratação, venda completa (compra, separação, envio e retirada) com o estoque caindo em todos os marketplaces, ruptura e pedido ao fornecedor, anúncio novo, suporte, sazonalidade, devolução e controle de estoque. Cada cena aparece explicada no topo, com ✓ quando funciona.</p>
+    <p class="warn">⚠ Ela cria dados de verdade no sistema (pedidos, devolução, chamado, cotação, um produto e uma loja nova). Se quiser voltar ao estado de antes, faça uma cópia do <b>database.sqlite</b> antes de começar.</p>
     <ol>
       <li>Deixe o <b>iniciar-tudo.bat</b> rodando.</li>
       <li>Aperte <b>F11</b> para tela cheia.</li>
@@ -356,18 +356,55 @@
 
   // ---------------------------------------------------------------------------
   // Roteiro
-  let storeId = null;
   let quoteLink = "";
   let accepted = false;
   let ticketId = null;
+  let mlOrderId = null;
+  let mlProductName = "";
+  const newestOrder = (filter) => panelState(`(state.orders.filter((o) => ${filter}).sort((a, b) => b.ts - a.ts)[0] || {}).id`);
+  const orderStatus = (id) => panelState(`(state.orders.find((o) => o.id === ${JSON.stringify(id)}) || {}).status`);
+  const cardOf = (f, name) => [...doc(f).querySelectorAll(".product-card")].find((c) => c.querySelector("h3")?.textContent === name);
+  const stockOn = (f, name) => parseInt(cardOf(f, name)?.querySelector(".product-stock")?.textContent);
+  // Ajuste de estoque pela gaveta: motivo, local e a quantidade contada (nessa ordem, porque trocar
+  // o local redesenha o formulário). Devolve se salvou.
+  async function adjustTo(pid, loc, qty) {
+    const current = Number(panelState(`(state.products.find((p) => p.id === ${JSON.stringify(pid)}).stock || {})[${JSON.stringify(loc)}] || 0`));
+    if (current === qty) return true;
+    await click("loja", `[data-adjust="${pid}"]`);
+    await find("loja", "#adjust-form");
+    const reason = await find("loja", "#adj-reason");
+    await choose("loja", reason, reason.options[0].value);
+    const where = await find("loja", "#adj-location");
+    if (where.value !== loc && [...where.options].some((o) => o.value === loc)) await choose("loja", where, loc);
+    await type("loja", "#adj-counted", String(qty));
+    await click("loja", "#adjust-form button.primary");
+    const saved = await waitFor(() => !doc("loja").querySelector("#adjust-form"));
+    if (!saved) await click("loja", '[data-action="close-drawer"]');
+    return !!saved;
+  }
+  // Separação no painel: abre o pedido, bipa cada item e confirma
+  async function separate(id) {
+    await go("loja", "pedidos");
+    const open = doc("loja").querySelector(`[data-order="${id}"]`);
+    if (open) await click("loja", open);
+    else win("loja").eval(`openDrawer("pedido", ${JSON.stringify(id)}); render();`);
+    await find("loja", "#pedido-scan-code");
+    const skus = panelState(`state.orders.find((o) => o.id === ${JSON.stringify(id)}).items.flatMap((it) => Array(it.qty).fill(it.sku))`);
+    for (const sku of skus) {
+      await type("loja", "#pedido-scan-code", sku);
+      await click("loja", '#pedido-scan-form button.primary');
+    }
+    await click("loja", '[data-action="confirm-separation"]');
+  }
+
   const steps = [
-    ["O site da WedTech", "O cliente conhece a WedTech e pede uma proposta com os dados da loja.", async () => {
-      show("extra", null, "Site (página inicial)");
+    // 1–3 · Contratação ---------------------------------------------------------
+    ["Contratação · o lojista pede uma proposta", "No site não tem preço: ele conta sobre a loja e onde quer vender.", async () => {
+      show("extra", null, "Site da WedTech");
       await load("extra", "../index.html");
       await sleep(900);
-      await scrollPage("extra", 2);
+      await scrollPage("extra", 1);
       await click("extra", "[data-contratar]");
-      check(await waitFor(() => doc("extra").querySelector("#contratar-modal")?.open), "Formulário de proposta abre");
       await type("extra", "#f-loja", lead.loja);
       await choose("extra", "#f-ramo", "moda");
       await type("extra", "#f-cnpj", lead.cnpj);
@@ -378,259 +415,310 @@
       await type("extra", "#f-nome", lead.nome);
       await type("extra", "#f-email", lead.email);
       await type("extra", "#f-whats", lead.whats);
-      await type("extra", "#f-obs", "Quero juntar o estoque da loja com o Mercado Livre.");
       await click("extra", '#contratar-form button[type="submit"]');
       check(await waitFor(() => !doc("extra").querySelector(".modal-success").hidden), "Pedido de proposta enviado");
-      await sleep(1500);
+      await sleep(1200);
     }],
-    ["Entrar como lojista", "Botão de exemplo na tela de login: abre o painel da loja.", async () => {
-      show("loja", null, "Login");
+    ["Contratação · o consultor monta a cotação", "Preço de cada marketplace e de cada produto a cadastrar, calculado na hora.", async () => {
+      show("cons", null, "Área do consultor");
+      await load("cons", "../login.php");
+      await click("cons", ".btn-exemplo", "adm");
+      await click("cons", ".btn-submit");
+      await waitFor(() => win("cons").location.pathname.endsWith("/consultor/index.php"));
+      hookFrame("cons");
+      await find("cons", ".big-kpi");
+      await go("cons", "contatos");
+      const row = await find("cons", "tbody tr", lead.email);
+      await point("cons", row);
+      await click("cons", row.querySelector("[data-lead-quote]"));
+      check(await waitFor(() => doc("cons").querySelector("#qt-cnpj")?.value.includes("11.222.333")), "Cotação já vem com os dados da loja");
+      await find("cons", "#quote-summary .price-lines", null, 15000);
+      await type("cons", "#qt-produtos", "150");
+      await waitFor(() => doc("cons").querySelector("#quote-summary")?.textContent.includes("cadastro de 150 produtos"), 20000);
+      await point("cons", await find("cons", "#quote-summary"));
+      await sleep(1800);
+      await click("cons", "[data-quote-send]");
+      quoteLink = await waitFor(() => doc("cons").querySelector("#qt-link")?.value, 20000);
+      check(quoteLink, "Proposta enviada: link, WhatsApp e e-mail");
+      const wa = doc("cons").querySelector("a.btn.whatsapp");
+      if (wa) await point("cons", wa);
+      await sleep(1200);
+    }],
+    ["Contratação · o cliente aceita e a loja é criada", "Proposta e contrato pelo link, sem login. O consultor é avisado na hora.", async () => {
+      if (!quoteLink) throw new Error("pulada: a cotação não foi enviada");
+      show("extra", null, "Proposta (visão do cliente)");
+      await load("extra", quoteLink);
+      await scrollPage("extra", 2);
+      show("extra", null, "Contrato (visão do cliente)");
+      await load("extra", quoteLink.replace("proposta.php", "contrato.php"));
+      await scrollPage("extra", 3);
+      show("extra", null, "Proposta (visão do cliente)");
+      await load("extra", quoteLink);
+      await type("extra", "#nome", lead.nome);
+      await click("extra", ".accept .check input");
+      await click("extra", ".accept button.primary");
+      accepted = check(await waitFor(() => doc("extra").body.textContent.includes("Proposta aceita"), 15000), "Cliente aceitou proposta e contrato");
+      if (!accepted) return;
+      show("cons", null, "Área do consultor");
+      check(await waitFor(() => doc("cons").querySelector("[data-quote-store]"), 20000), "Consultor avisado do aceite");
+      await click("cons", "[data-quote-store]");
+      await find("cons", "#nl-nome");
+      await sleep(900);
+      await click("cons", "#new-store-form button.primary");
+      check(await waitFor(() => doc("cons").querySelector(".credential-card")), "Loja criada com o plano contratado");
+      await sleep(2200);
+      await click("cons", "[data-close-credential]");
+    }],
+
+    // 4–6 · Venda completa --------------------------------------------------------
+    ["Venda · o cliente compra no Mercado Livre", "E o estoque cai sozinho em todos os marketplaces, na hora.", async () => {
+      show("loja", null, "Painel da loja");
       await load("loja", "../login.php");
       await click("loja", ".btn-exemplo", "vendedor");
       await click("loja", ".btn-submit");
       await waitFor(() => win("loja").location.pathname.endsWith("/modulos/index.php"));
       hookFrame("loja");
-      check(await readyPanel(), "Painel da loja aberto");
-    }],
-    ["Entrar como consultor no mesmo navegador", "As duas contas funcionam juntas, lado a lado.", async () => {
-      show("cons", null, "Login");
-      await load("cons", "../login.php");
-      await sleep(800);
-      await click("cons", ".btn-exemplo", "adm");
-      await click("cons", ".btn-submit");
-      await waitFor(() => win("cons").location.pathname.endsWith("/consultor/index.php"));
-      hookFrame("cons");
-      check(await waitFor(() => doc("cons").querySelector(".big-kpi")), "Área do consultor aberta");
-      const lojas = await (await fetch("../api/consultor.php?acao=lojas")).json();
-      storeId = (lojas.dados || []).find((s) => s.dono_email === "admin@wedtech.com")?.id || null;
-      show("loja", "cons");
-      await sleep(1500);
-      check(!panelState("window.WEDTECH_READONLY") && panelState("state.store.name"), "Lojista continua conectado ao lado");
-    }],
-    ["Início do painel", "Indicadores do dia; cada um leva direto para resolver.", async () => {
-      show("loja");
-      await go("loja", "inicio");
-      await scrollPage("loja", 1);
-      const kpi = await find("loja", "button.big-kpi, [data-nav^='estoque']");
-      await point("loja", kpi);
-      await click("loja", "[data-nav^='estoque']");
-      check(win("loja").location.hash.startsWith("#estoque"), "Indicador leva ao estoque filtrado");
-    }],
-    ["Estoque: ajuste com motivo", "Contagem da prateleira corrigida e registrada.", async () => {
-      await go("loja", "estoque");
-      // A etapa anterior deixou o estoque filtrado: volta para todos os produtos
-      const all = doc("loja").querySelector('[data-estoque-filter="todos"]');
-      if (all) await click("loja", all);
-      // Um produto sem variação (tamanho/cor) e uma contagem diferente da atual
-      const pid = panelState(`(state.products.find((p) => !p.variants?.length && document.querySelector('[data-adjust="' + p.id + '"]')) || {}).id`);
-      await click("loja", pid ? `[data-adjust="${pid}"]` : '[data-adjust]:not([data-adjust=""])');
-      await find("loja", "#adjust-form");
-      // O motivo primeiro: trocar a seleção redesenha o formulário, e a quantidade vem por último
-      const reason = await find("loja", "#adj-reason");
-      await choose("loja", reason, reason.options[0].value);
-      const loc = (await find("loja", "#adj-location")).value;
-      const current = Number(panelState(`(state.products.find(p => p.id === ${JSON.stringify(pid)})?.stock || {})[${JSON.stringify(loc)}] || 0`));
-      await type("loja", "#adj-counted", String(current + 2));
-      await click("loja", '#adjust-form button.primary, #adjust-form button[type="submit"]');
-      let message = "";
-      const saved = await waitFor(() => {
-        message = doc("loja").querySelector("#toast")?.textContent || message;
-        return !doc("loja").querySelector("#adjust-form");
-      });
-      check(saved, saved ? "Ajuste de estoque salvo" : "Ajuste de estoque: " + (message || "não salvou"));
-      if (!saved) await click("loja", '[data-action="close-drawer"]');
-    }],
-    ["Fornecedores e compras", "Ficha do fornecedor e pedido de reposição.", async () => {
-      await go("loja", "compras");
-      await click("loja", "[data-supplier]");
-      check(await waitFor(() => doc("loja").querySelector("#sup-name")), "Ficha do fornecedor abre");
-      await sleep(1200);
-      await click("loja", '[data-action="close-drawer"]');
-      await scrollPage("loja", 1);
-    }],
-    ["Caixa (PDV)", "Abre o caixa, bipa um produto e recebe no Pix.", async () => {
-      await go("loja", "balcao");
-      const openForm = doc("loja").querySelector("#register-open-form");
-      if (openForm) {
-        await type("loja", "#register-float", "100");
-        await click("loja", "#register-open-form button");
-      }
-      check(await waitFor(() => doc("loja").querySelector("#balcao-code")), "Caixa aberto");
-      const sku = panelState("(state.products.find(p => !p.variants?.length && p.sku && W.stockOf(state, p).disponivel >= 3) || {}).sku");
-      const before = panelState("state.orders.length");
-      await type("loja", "#balcao-code", sku);
-      await click("loja", '#balcao-form button[type="submit"], #balcao-form button.primary');
-      check(await waitFor(() => panelState("ui.cart.length") > 0), "Produto no carrinho pelo código");
-      await click("loja", '[data-action="start-payment"]');
-      await click("loja", '[data-pay="pix"]');
-      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Venda paga no Pix e registrada");
-      await sleep(1500);
-    }],
-    ["Pedidos de todos os canais", "Filtro por canal e por loja.", async () => {
+      await readyPanel();
       await go("loja", "pedidos");
-      await choose("loja", "#pedidos-channel", "ml");
-      await sleep(800);
-      check(true, "Filtro por canal aplicado");
-      const clear = doc("loja").querySelector('[data-action="clear-order-filters"]');
-      if (clear) await click("loja", clear);
-      await go("loja", "retiradas");
-      await go("loja", "devolucoes");
-      check(doc("loja").querySelector("#main-content h1"), "Retiradas e devoluções em telas próprias");
-    }],
-    ["Venda no Mercado Livre em tempo real", "Compra na vitrine: o pedido cai no painel sozinho, sem F5.", async () => {
-      await go("loja", "pedidos");
-      show("extra", "loja", "Vitrine Mercado Livre (cliente)", "Painel da loja");
-      await load("extra", "../marketplaces/mercado-livre/index.php");
-      const card = await waitFor(() => [...doc("extra").querySelectorAll(".product-card")].find((c) => !c.querySelector(".variant-select") && parseInt(c.querySelector(".product-stock")?.textContent) >= 2));
-      if (!card) throw new Error("vitrine sem produto disponível (o Mercado Livre está conectado?)");
-      const name = card.querySelector("h3").textContent;
-      const stockBefore = parseInt(card.querySelector(".product-stock").textContent);
+      show("extra", "cons", "Mercado Livre (cliente)", "Shopee (outro marketplace)");
+      await Promise.all([load("extra", "../marketplaces/mercado-livre/index.php"), load("cons", "../marketplaces/shopee/index.php")]);
+      const card = await waitFor(() =>
+        [...doc("extra").querySelectorAll(".product-card")].find((c) => !c.querySelector(".variant-select") && stockOn("extra", c.querySelector("h3").textContent) >= 2 && cardOf("cons", c.querySelector("h3").textContent)),
+      );
+      if (!card) throw new Error("nenhum produto à venda no Mercado Livre e na Shopee ao mesmo tempo");
+      mlProductName = card.querySelector("h3").textContent;
+      const mlBefore = stockOn("extra", mlProductName);
+      const shopeeBefore = stockOn("cons", mlProductName);
       const before = panelState("state.orders.length");
+      await point("cons", cardOf("cons", mlProductName));
       await click("extra", card.querySelector("[data-add-product]"));
-      await type("extra", 'input[name="name"]', "Carlos Cliente");
+      await type("extra", 'input[name="name"]', "Carlos Souza");
       await type("extra", 'input[name="phone"]', "11 97777-1234");
       await type("extra", '[name="address"]', "Rua das Palmeiras, 45 - São Paulo");
       for (const box of doc("extra").querySelectorAll('#checkout-form input[type="checkbox"]')) if (!box.checked) await click("extra", box);
       await click("extra", "#checkout-button");
-      check(await waitFor(() => /Pedido/.test(doc("extra").querySelector("#checkout-message")?.textContent)), "Compra confirmada na vitrine");
-      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Pedido apareceu no painel sem F5");
-      check(await waitFor(() => doc("loja").querySelector("#wedtech-alerts .wt-alert"), 8000), "Janela flutuante com o novo pedido");
-      const after = await waitFor(() => {
-        const c = [...doc("extra").querySelectorAll(".product-card")].find((x) => x.querySelector("h3").textContent === name);
-        const n = c && parseInt(c.querySelector(".product-stock").textContent);
-        return n < stockBefore ? n : null;
-      }, 12000);
-      check(after !== null, `Estoque da vitrine caiu sozinho (${stockBefore} → ${after})`);
+      check(await waitFor(() => /Pedido/.test(doc("extra").querySelector("#checkout-message")?.textContent)), "Compra confirmada no Mercado Livre");
+      const shopeeAfter = await waitFor(() => (stockOn("cons", mlProductName) < shopeeBefore ? stockOn("cons", mlProductName) : null), 15000);
+      await point("cons", cardOf("cons", mlProductName) || doc("cons").body);
+      check(shopeeAfter !== null, `Estoque caiu sozinho na Shopee (${shopeeBefore} → ${shopeeAfter})`);
+      check(await waitFor(() => stockOn("extra", mlProductName) < mlBefore, 12000), `Estoque caiu no Mercado Livre (${mlBefore} → ${stockOn("extra", mlProductName)})`);
+      show("loja", null, "Painel da loja");
+      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Pedido subiu no painel sem F5");
+      check(await waitFor(() => doc("loja").querySelector("#wedtech-alerts .wt-alert"), 8000), "Aviso com som do pedido novo");
+      mlOrderId = newestOrder("o.channel === 'ml'");
       await sleep(1500);
     }],
-    ["Notificações e menu do perfil", "Avisos num lugar só; menu da conta no topo.", async () => {
-      show("loja");
-      await go("loja", "notificacoes");
-      await sleep(800);
-      await click("loja", ".avatar-btn");
-      check(await waitFor(() => doc("loja").querySelector(".profile-panel")), "Menu do perfil abre");
-      await sleep(1400);
-      await click("loja", '.profile-panel [data-nav="config"]');
-      check(win("loja").location.hash === "#config", "Menu leva às configurações");
+    ["Venda · separação e envio", "A IA sugere a rota; cada item é bipado; o despacho gera nota e etiqueta.", async () => {
+      if (!mlOrderId) throw new Error("pulada: o pedido do Mercado Livre não chegou");
+      show("loja", "extra", "Painel da loja", "Mercado Livre · Meus pedidos (cliente)");
+      await separate(mlOrderId);
+      check(await waitFor(() => orderStatus(mlOrderId) === "separado"), "Itens bipados e separação confirmada");
+      await click("loja", `[data-dispatch="${mlOrderId}"]`);
+      check(await waitFor(() => orderStatus(mlOrderId) === "enviado", 15000), "Despachado com nota fiscal e etiqueta");
+      const mine = doc("extra").querySelector(".order-status");
+      if (mine) await point("extra", mine);
+      check(await waitFor(() => [...doc("extra").querySelectorAll(".order-status")].some((s) => /enviado/i.test(s.textContent)), 20000), "O cliente vê “Enviado” na vitrine, sem F5");
+      await sleep(1500);
     }],
-    ["Canais e gestão", "Taxas de cada marketplace, financeiro, datas, anúncios e IA.", async () => {
-      for (const page of ["canais", "financeiro", "sazonalidade", "ads", "ai"]) {
-        await go("loja", page);
-        await scrollPage("loja", 1);
-      }
-      check(doc("loja").querySelector("#main-content h1"), "Telas de gestão abrem");
+    ["Venda · retirada na loja", "Compra no site próprio; o cliente recebe um QR; o lojista bipa e entrega.", async () => {
+      show("extra", "loja", "Site próprio da loja (cliente)", "Painel da loja");
+      await go("loja", "pedidos");
+      await load("extra", "../modulos/loja.html");
+      const add = await waitFor(() => [...doc("extra").querySelectorAll("[data-add]:not([disabled])")].find((b) => b.textContent.includes("Adicionar")), 15000);
+      if (!add) throw new Error("site da loja sem produto disponível");
+      const before = panelState("state.orders.length");
+      await click("extra", add);
+      await click("extra", '[data-go="cart"]');
+      const pickup = await find("extra", 'input[name="delivery"][value="retirada"]');
+      if (!pickup.checked) await click("extra", pickup);
+      await type("extra", '#checkout [name="name"]', "Juliana Lima");
+      await type("extra", '#checkout [name="phone"]', "11 96666-4321");
+      await click("extra", '#checkout button[type="submit"], #checkout button');
+      check(await waitFor(() => panelState("state.orders.length") > before, 15000), "Pedido de retirada chegou no painel");
+      const id = newestOrder("o.type === 'retirada'");
+      await separate(id);
+      check(await waitFor(() => orderStatus(id) === "pronto"), "Separado: o cliente foi avisado com o QR de retirada");
+      const code = panelState(`state.orders.find((o) => o.id === ${JSON.stringify(id)}).pickupCode`);
+      await sleep(1200);
+      await type("loja", "#pedido-retirada-code", code);
+      await click("loja", '#pedido-retirada-form button.primary');
+      check(await waitFor(() => orderStatus(id) === "retirado"), "Cliente retirou: QR conferido e estoque baixado");
+      await sleep(1200);
     }],
-    ["Suporte em chat, ao vivo", "O lojista abre um chamado; o consultor responde; aparece na hora.", async () => {
-      show("loja", "cons");
-      await go("cons", "inicio");
+
+    // 7 · Ruptura -----------------------------------------------------------------
+    ["Ruptura · pedido ao fornecedor", "A contagem mostra que um produto acabou: a WedTech avisa, pede ao fornecedor e o estoque volta.", async () => {
+      show("loja", null, "Painel da loja");
+      // Um produto com fornecedor, sem variação e sem compra a caminho: a contagem mostra que acabou
+      const pid = panelState(`(state.products.find((p) => !p.variants?.length && p.minStock >= 1 && state.suppliers.some((f) => f.id === p.supplierId)
+        && W.stockOf(state, p).disponivel > 1
+        && !state.purchaseOrders.some((po) => po.status === "enviado" && po.items.some((i) => i.productId === p.id))) || {}).id`);
+      if (!pid) throw new Error("nenhum produto com fornecedor disponível para a cena");
+      const name = panelState(`state.products.find((p) => p.id === ${JSON.stringify(pid)}).name`);
+      await go("loja", "estoque");
+      const all = doc("loja").querySelector('[data-estoque-filter="todos"]');
+      if (all) await click("loja", all);
+      // Em cada local fica só o que está reservado para pedidos em aberto, e 1 unidade livre no primeiro
+      const places = panelState(`W.stockOf(state, state.products.find((p) => p.id === ${JSON.stringify(pid)})).byLoc.filter((l) => l.qty > 0).map((l) => [l.id, l.reserved])`);
+      for (const [i, [loc, reserved]] of places.entries()) await adjustTo(pid, loc, reserved + (i === 0 ? 1 : 0));
+      check(panelState(`W.stockOf(state, state.products.find((p) => p.id === ${JSON.stringify(pid)})).disponivel`) <= 1, `Contagem: “${name}” está acabando`);
+      await go("loja", "inicio");
+      await click("loja", "[data-nav^='estoque']");
+      check(win("loja").location.hash.startsWith("#estoque") && doc("loja").body.textContent.includes(name), "Ruptura aparece no painel");
+      await sleep(1500);
+      // Pedir ao fornecedor (ou confirmar o pedido que a IA já preparou sozinha)
+      await go("loja", "compras");
+      const ask = doc("loja").querySelector(`[data-order-supplier="${pid}"]`);
+      if (ask) await click("loja", ask);
+      const findPo = () => panelState(`(state.purchaseOrders.find((po) => po.status === "aguardando" && po.items.some((i) => i.productId === ${JSON.stringify(pid)})) || {}).id`);
+      const po = await waitFor(findPo, 10000);
+      if (!po) throw new Error("o pedido ao fornecedor não foi criado");
+      await click("loja", `[data-confirm-po="${po}"]`);
+      check(await waitFor(() => panelState(`(state.purchaseOrders.find((p) => p.id === ${JSON.stringify(po)}) || {}).status`) === "enviado"), "Pedido enviado ao fornecedor");
+      await sleep(1500);
+      await click("loja", `[data-receive-all="${po}"]`);
+      check(await waitFor(() => panelState(`(state.purchaseOrders.find((p) => p.id === ${JSON.stringify(po)}) || {}).status`) === "recebido"), "Mercadoria recebida: estoque reposto em todos os canais");
+      await sleep(1200);
+    }],
+
+    // 8 · Anúncio novo --------------------------------------------------------------
+    ["Anúncio novo · um cadastro, todos os canais", "A IA escreve o anúncio de cada marketplace; publicou, já aparece à venda.", async () => {
+      show("loja", "extra", "Painel da loja · ADS", "Mercado Livre (cliente)");
+      await go("loja", "ads");
+      await click("loja", '[data-action="ads-example"]');
+      const ml = await find("loja", '#ads-form input[name="channel"][value="ml"]');
+      if (!ml.checked) await click("loja", ml);
+      await scrollPage("loja", 1);
+      await click("loja", '#ads-form button[type="submit"]');
+      const next = await waitFor(() => doc("loja").querySelector('[data-action="ads-fix"], [data-action="ads-publish"]'), 15000);
+      if (!next) throw new Error("a IA não gerou os anúncios");
+      const name = panelState("ui.one.draft.name");
+      if (next.dataset.action === "ads-fix") await click("loja", next);
+      await click("loja", await find("loja", '[data-action="ads-publish"]'));
+      check(await waitFor(() => panelState(`state.products.some((p) => p.name === ${JSON.stringify(name)})`)), `Produto “${name}” publicado`);
+      await load("extra", "../marketplaces/mercado-livre/index.php");
+      const card = await waitFor(() => cardOf("extra", name), 15000);
+      if (card) await point("extra", card);
+      check(card, "Já aparece à venda no Mercado Livre");
+      await sleep(1500);
+    }],
+
+    // 9 · Suporte -------------------------------------------------------------------
+    ["Suporte · o lojista fala com a WedTech", "Chat em tempo real com o consultor, dentro do painel.", async () => {
+      show("loja", "cons", "Painel da loja", "Área do consultor");
+      await load("cons", "../consultor/index.php#inicio");
+      await find("cons", ".big-kpi");
+      await sleep(3500);
       await go("loja", "suporte");
       await click("loja", '[data-action="support-new"]');
       await type("loja", "#sup-subject", "Como imprimo a etiqueta de envio?");
       await type("loja", "#sup-message", "Vendi no Mercado Livre e não achei onde imprimir a etiqueta.");
       await click("loja", '#support-open-form button.primary');
       ticketId = await waitFor(() => panelState("ui.supportTicket"));
-      check(ticketId, `Chamado #${ticketId} aberto`);
-      const alert = await waitFor(() => alertIn("cons", "#" + ticketId), 12000);
-      check(alert, "Consultor recebe a janela com o chamado");
+      const alert = await waitFor(() => alertIn("cons", "#" + ticketId), 15000);
+      check(alert, "Consultor recebe o chamado na hora, com som");
       if (alert) await click("cons", alert.querySelector(".wt-alert-body"));
       else await go("cons", "chamado/" + ticketId);
-      await type("cons", "#tk-texto", "Olá! Em Pedidos, abra o pedido e clique em Etiqueta. Já deixei separado para você.");
+      await type("cons", "#tk-texto", "Olá! Abra o pedido em Pedidos e clique em Ver etiqueta. Qualquer dúvida, estou aqui.");
       await click("cons", '#ticket-form button.primary');
-      check(await waitFor(() => doc("loja").querySelector(`[data-thread="${ticketId}"]`)?.textContent.includes("Etiqueta"), 25000), "Resposta aparece para o lojista sem F5");
+      check(await waitFor(() => doc("loja").querySelector(`[data-thread="${ticketId}"]`)?.textContent.includes("Ver etiqueta"), 25000), "Resposta aparece para o lojista sem F5");
       await sleep(1500);
     }],
-    ["Cotação a partir do contato do site", "Preço por marketplace e por produto, calculado na hora.", async () => {
-      show("cons");
-      await go("cons", "contatos");
-      const row = await find("cons", "tbody tr", lead.email);
-      await point("cons", row);
-      await click("cons", row.querySelector("[data-lead-quote]"));
-      check(await waitFor(() => doc("cons").querySelector("#qt-cnpj")?.value.includes("11.222.333")), "Cotação vem preenchida com os dados da loja");
-      await find("cons", "#quote-summary .price-lines", null, 15000);
-      await sleep(900);
-      // Marca mais um marketplace (o primeiro que ainda não está marcado) e muda a quantidade de produtos
-      const chip = await waitFor(() => doc("cons").querySelector("[data-quote-channel]:not(.active)"), 15000);
-      const channelName = chip ? chip.querySelector("b").textContent.trim() : "";
-      if (chip) await click("cons", chip);
-      await type("cons", "#qt-produtos", "100");
-      const summaryText = () => doc("cons").querySelector("#quote-summary")?.textContent || "";
-      const recalculated = await waitFor(() => summaryText().includes("cadastro de 100 produtos") && (!channelName || summaryText().includes(channelName)), 20000);
-      check(recalculated, recalculated ? "Preço recalculado: cadastro por produto em cada canal" : "Preço recalculado — o resumo mostrava: " + summaryText().replace(/\s+/g, " ").slice(0, 160));
-      await point("cons", await find("cons", "#quote-summary"));
-      await sleep(1500);
-      await click("cons", "[data-quote-send]");
-      const link = await waitFor(() => doc("cons").querySelector("#qt-link")?.value, 20000);
-      check(link, "Proposta enviada com link próprio");
-      quoteLink = link;
-      const wa = doc("cons").querySelector("a.btn.whatsapp");
-      if (wa) await point("cons", wa);
-      check(wa && wa.href.startsWith("https://wa.me/5511988887777"), "WhatsApp direto no número do cliente");
+
+    // 10 · Sazonalidade -------------------------------------------------------------
+    ["Sazonalidade · preparar a loja para as datas fortes", "A IA prevê a procura de cada data e prepara as compras antes.", async () => {
+      show("loja", null, "Painel da loja");
+      await go("loja", "sazonalidade");
+      await scrollPage("loja", 1);
+      const ev = await find("loja", "[data-event]");
+      await click("loja", ev);
       await sleep(1200);
-    }],
-    ["O cliente aceita a proposta e o contrato", "Pelo link, sem login: lê, pode imprimir e aceita.", async () => {
-      if (!quoteLink) throw new Error("pulada: a cotação da etapa anterior não foi enviada");
-      show("extra", null, "Proposta (visão do cliente)");
-      await load("extra", quoteLink);
-      await scrollPage("extra", 3);
-      await load("extra", quoteLink.replace("proposta.php", "contrato.php"));
-      show("extra", null, "Contrato (visão do cliente)");
-      await scrollPage("extra", 4);
-      await load("extra", quoteLink);
-      show("extra", null, "Proposta (visão do cliente)");
-      await type("extra", "#nome", lead.nome);
-      await click("extra", ".accept .check input");
-      await click("extra", ".accept button.primary");
-      accepted = check(await waitFor(() => doc("extra").body.textContent.includes("Proposta aceita"), 15000), "Proposta aceita pelo cliente");
-      await sleep(1200);
-    }],
-    ["Da proposta aceita à loja criada", "O consultor é avisado na hora e cadastra a loja com um clique.", async () => {
-      if (!accepted) throw new Error("pulada: a proposta não foi aceita na etapa anterior");
-      show("cons");
-      check(await waitFor(() => doc("cons").querySelector("[data-quote-store]"), 20000), "Consultor avisado do aceite (sem F5)");
-      await click("cons", "[data-quote-store]");
-      check(await waitFor(() => doc("cons").querySelector("#nl-nome")?.value === lead.loja), "Cadastro da loja vem preenchido");
-      await sleep(1000);
-      await click("cons", "#new-store-form button.primary");
-      check(await waitFor(() => doc("cons").querySelector(".credential-card")), "Loja criada com senha provisória");
-      await sleep(2200);
-      await click("cons", "[data-close-credential]");
-      await sleep(1500);
-    }],
-    ["Contrato e liberações da loja", "O consultor libera um recurso; o painel da loja muda na hora.", async () => {
-      if (!storeId) throw new Error("não achei a loja de exemplo");
-      show("cons", "loja");
-      await go("loja", "inicio");
-      // Guarda o contrato atual para devolver a loja de exemplo exatamente como estava
-      const original = (await (await fetch(`../api/consultor.php?acao=loja&id=${storeId}`)).json()).dados;
-      await go("cons", "loja/" + storeId);
-      await find("cons", ".plan-card");
-      // Libera um recurso que está bloqueado; se todos já estão liberados, aumenta as lojas físicas
-      const extra = doc("cons").querySelector('[data-module-set$=":extra"]:not(.active)');
-      await click("cons", extra || '[data-limit-step="maxShops:1"]');
-      await point("cons", await find("cons", ".change-list"));
-      await sleep(1200);
-      await click("cons", "[data-contract-save]");
-      check(await waitFor(() => alertIn("loja", "plano foi atualizado"), 15000), "Lojista recebe o aviso da mudança de plano");
-      await sleep(2500);
-      if (original) {
-        await fetch(`../api/consultor.php?acao=atualizar_loja&id=${storeId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plano: original.plano, situacao: original.situacao, valor_mensal: original.valor_mensal, teste_ate: original.teste_ate || "", limites: original.limites, modulos: original.modulos, observacoes: original.observacoes || "" }),
-        });
+      const prepare = doc("loja").querySelector('[data-action="prepare-event"]');
+      if (prepare && !prepare.disabled) {
+        await click("loja", prepare);
+        check(await waitFor(() => win("loja").location.hash === "#compras" || /preparou|pedido/i.test(doc("loja").querySelector("#toast")?.textContent || ""), 12000), "Compras preparadas para a data");
+      } else {
+        check(true, "Previsão de vendas da data exibida");
       }
+      await sleep(1500);
     }],
-    ["Gestão do consultor", "Tabela de preços por marketplace e registro de tudo o que foi feito.", async () => {
-      show("cons");
-      await go("cons", "precos");
-      await scrollPage("cons", 2);
-      await go("cons", "historico");
-      check(await waitFor(() => doc("cons").body.textContent.includes("Cotação aceita pelo cliente")), "Registro de ações mostra a cotação aceita");
+
+    // 11 · Devolução ----------------------------------------------------------------
+    ["Devolução · o cliente pede, a loja resolve", "Pedido pelo marketplace, análise com os prazos do CDC, produto de volta ao estoque.", async () => {
+      if (!mlOrderId) throw new Error("pulada: não há pedido do Mercado Livre desta demonstração");
+      show("extra", "loja", "Mercado Livre · Meus pedidos (cliente)", "Painel da loja");
+      await load("extra", "../marketplaces/mercado-livre/index.php");
+      await go("loja", "devolucoes");
+      const ask = await waitFor(() => doc("extra").querySelector("[data-return-for]"), 15000);
+      if (!ask) throw new Error("a vitrine não ofereceu a devolução");
+      await click("extra", ask);
+      const reason = await find("extra", "form.return-request select[name='reason']");
+      await choose("extra", reason, [...reason.options].find((o) => o.value)?.value);
+      await click("extra", "form.return-request button[type='submit']");
+      const rid = await waitFor(() => panelState(`((state.returnRequests || []).filter((r) => r.orderId === ${JSON.stringify(mlOrderId)}).sort((a, b) => b.createdAt - a.createdAt)[0] || {}).id`), 20000);
+      check(rid, "Pedido de devolução chegou no painel");
+      if (!rid) return;
+      await sleep(1200);
+      // A devolução aparece na aba da situação dela (dentro do prazo do marketplace ela já chega aprovada)
+      const status = panelState(`state.returnRequests.find((r) => r.id === ${JSON.stringify(rid)}).status`);
+      const tab = { aberta: "analisar", aprovada: "aguardando", recebida: "conferir" }[status];
+      if (tab) await click("loja", `[data-returns-tab="${tab}"]`);
+      const open = await waitFor(() => doc("loja").querySelector(`[data-return="${rid}"]`), 8000);
+      if (open) await click("loja", open);
+      else win("loja").eval(`openDrawer("devolucao", ${JSON.stringify(rid)}); render();`);
+      const approve = await waitFor(() => doc("loja").querySelector(`[data-return-approve="${rid}"]`), 3000);
+      if (approve) await click("loja", approve);
+      else check(true, "Dentro do prazo do marketplace: devolução já aprovada");
+      const received = await waitFor(() => doc("loja").querySelector(`[data-return-receive="${rid}"]`) || doc("loja").querySelector("#return-resolve-form"), 12000);
+      if (received && received.matches(`[data-return-receive="${rid}"]`)) await click("loja", received);
+      await find("loja", "#return-resolve-form");
+      await choose("loja", "#rs-condition", "venda");
+      await click("loja", "#return-resolve-form button.primary");
+      check(await waitFor(() => panelState(`(state.returnRequests.find((r) => r.id === ${JSON.stringify(rid)}) || {}).status`) === "concluida", 12000), "Devolução concluída: produto de volta à venda");
+      await sleep(1500);
+    }],
+
+    // 12 · Controle de estoque ------------------------------------------------------
+    ["Controle de estoque", "Estoque por local, alertas e ajuste com motivo: tudo registrado.", async () => {
+      show("loja", null, "Painel da loja");
+      await go("loja", "estoque");
+      const all = doc("loja").querySelector('[data-estoque-filter="todos"]');
+      if (all) await click("loja", all);
+      await scrollPage("loja", 1);
+      const pid = panelState(`(state.products.find((p) => !p.variants?.length && document.querySelector('[data-adjust="' + p.id + '"]')) || {}).id`);
+      await click("loja", pid ? `[data-adjust="${pid}"]` : '[data-adjust]:not([data-adjust=""])');
+      await find("loja", "#adjust-form");
+      const reasonSel = await find("loja", "#adj-reason");
+      await choose("loja", reasonSel, reasonSel.options[0].value);
+      const loc = (await find("loja", "#adj-location")).value;
+      const current = Number(panelState(`(state.products.find(p => p.id === ${JSON.stringify(pid)})?.stock || {})[${JSON.stringify(loc)}] || 0`));
+      await type("loja", "#adj-counted", String(current + 2));
+      await click("loja", '#adjust-form button.primary');
+      check(await waitFor(() => !doc("loja").querySelector("#adjust-form")), "Contagem ajustada e registrada");
       await sleep(1500);
     }],
   ];
 
+  // A demonstração só funciona aberta pelo servidor do WedTech (iniciar-tudo.bat), que executa o PHP.
+  // Aberta direto do arquivo ou por outro servidor (ex.: Live Server do VS Code), o PHP vira texto.
+  async function serverOk() {
+    try {
+      const r = await fetch("../api/sessao.php", { cache: "no-store" });
+      const data = await r.json();
+      return typeof data === "object" && data !== null && "logado" in data;
+    } catch {
+      return false;
+    }
+  }
   async function start(auto = false) {
+    if (!(await serverOk())) {
+      $("#start").querySelector(".card").innerHTML = `<h2>⚠ Abra pelo servidor do WedTech</h2>
+        <p>Esta página foi aberta ${location.protocol === "file:" ? "direto do arquivo" : "por outro servidor (" + location.host + ")"}, e assim o sistema não roda: o PHP aparece como texto.</p>
+        <ol><li>Dê dois cliques no <b>iniciar-tudo.bat</b>, na pasta do projeto, e espere as janelas abrirem.</li>
+        <li>No navegador, abra <b>http://localhost:8000/demonstracao/</b>.</li></ol>`;
+      $("#start").hidden = false;
+      return;
+    }
     speed = auto ? Number(new URLSearchParams(location.search).get("auto")) || 1 : Number($("#speed").value);
     soundOn = !auto && $("#sound").checked;
     chime();
