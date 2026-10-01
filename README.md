@@ -37,7 +37,7 @@ winget install --id PHP.PHP.8.3 -e
 
 Para **encerrar todos os servidores**, pressione qualquer tecla na janela do `iniciar-tudo.bat`.
 
-Na primeira execução o banco `database.sqlite` é criado sozinho, com as contas abaixo.
+Na primeira execução o banco `database.sqlite` é criado sozinho, com as contas que estão abaixo.
 
 **Primeiro acesso:**
 1. Entre como lojista e escolha o tipo de loja, por exemplo **Eletrônicos e acessórios**. Isso cria o catálogo de exemplo, e as vitrines dos marketplaces passam a vender esses produtos.
